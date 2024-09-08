@@ -55,17 +55,17 @@ lint:lts:
   extends: .lint
   image: node:lts-bullseye
 
-lint:latest:
-  extends: .lint
-  image: node:latest
+# lint:latest:
+#   extends: .lint
+#   image: node:latest
 
 lint:frontend:lts:
   extends: .lint:frontend
   image: node:lts-bullseye
 
-lint:frontend:latest:
-  extends: .lint:frontend
-  image: node:latest
+# lint:frontend:latest:
+#   extends: .lint:frontend
+#   image: node:latest
 
 
 .test:
@@ -108,17 +108,17 @@ test:lts:
   extends: .test
   image: node:lts-bullseye
 
-test:latest:
-  extends: .test
-  image: node:latest
+# test:latest:
+#   extends: .test
+#   image: node:latest
 
 test:backend:lts:
   extends: .test:backend
   image: node:lts-bullseye
 
-test:backend:latest:
-  extends: .test:backend
-  image: node:latest
+# test:backend:latest:
+#   extends: .test:backend
+#   image: node:latest
 
 # testCommit:
 #   stage: test
