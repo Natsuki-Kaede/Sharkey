@@ -23,39 +23,34 @@ stages:
       # dont need to redownload the submodules every time
       - fluent-emojis
       - tossface-emojis
-.matrix:
-  extends: .node
+
+.lint:
   parallel:
     matrix:
       - PACKAGE: backend
-      - PACKAGE: frontend
-      # - PACKAGE: megalodon  # Currently fails
+      # - PACKAGE: frontend # Because we it needs a different command
+      # - PACKAGE: megalodon  # Currently fails because no linter
       - PACKAGE: misskey-bubble-game
       - PACKAGE: misskey-js
       - PACKAGE: misskey-reversi
       - PACKAGE: shared
       - PACKAGE: sw
-
-.lint:
   allow_failure: true
-  extends: .matrix
+  extends: .node
   stage: lint
   script:
     - pnpm run --filter=${PACKAGE} lint
 
-.test:
-  variables:
-    POSTGRES_PASSWORD: ci
-  extends: .matrix
-  stage: test
+.lint:frontend:
+  parallel:
+    matrix:
+      - PACKAGE: frontend # Because we it needs a different command
+  allow_failure: true
+  extends: .lint
+  stage: lint
   script:
-    - cp .config/ci.yml .config/default.yml
-    - cp .config/ci.yml .config/test.yml
-    - apt-get update && apt-get install -y git ffmpeg --no-install-recommends
-    - git submodule update --init
-    - pnpm run --filter=${PACKAGE} build
-    - pnpm run --filter=${PACKAGE} migrate
-    - pnpm run --filter=${PACKAGE} test
+    - pnpm run --filter=${PACKAGE} eslint
+
 
 lint:lts:
   extends: .lint
@@ -65,18 +60,66 @@ lint:latest:
   extends: .lint
   image: node:latest
 
-test:lts:
+lint:frontend:lts:
+  extends: .lint:frontend
+  image: node:lts-bullseye
+
+lint:frontend:latest:
+  extends: .lint:frontend
+  image: node:latest
+
+
+.test:
+  parallel:
+    matrix:
+      # - PACKAGE: backend # Disabled here because it needs extra stuff
+      - PACKAGE: frontend
+      - PACKAGE: megalodon
+      - PACKAGE: misskey-bubble-game
+      - PACKAGE: misskey-js
+      - PACKAGE: misskey-reversi
+      - PACKAGE: shared
+      - PACKAGE: sw
+  extends: .node
+  stage: test
+  script:
+    - git submodule update --init
+    - pnpm run --filter=..${PACKAGE} build
+    - pnpm run --filter=${PACKAGE} test
+
+.test:backend:
   extends: .test
+  parallel:
+    matrix:
+      - PACKAGE: backend
+  variables:
+    POSTGRES_PASSWORD: ci
   services:
     - postgres:15
     - redis
+  script:
+    - cp .config/ci.yml .config/default.yml
+    - cp .config/ci.yml .config/test.yml
+    - apt-get update && apt-get install -y git ffmpeg --no-install-recommends
+    - git submodule update --init
+    - pnpm run --filter=..${PACKAGE} build
+    - pnpm run --filter=${PACKAGE} migrate
+    - pnpm run --filter=${PACKAGE} test
+
+test:lts:
+  extends: .test
   image: node:lts-bullseye
 
 test:latest:
   extends: .test
-  services:
-    - postgres:16
-    - redis
+  image: node:latest
+
+test:backend:lts:
+  extends: .test:backend
+  image: node:lts-bullseye
+
+test:backend:latest:
+  extends: .test:backend
   image: node:latest
 
 # testCommit:
