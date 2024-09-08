@@ -51,7 +51,7 @@ stages:
   script:
     - cp .config/ci.yml .config/default.yml
     - cp .config/ci.yml .config/test.yml
-    - apt-get update && apt-get install -y git ffmpeg
+    - apt-get update && apt-get install -y git ffmpeg --no-install-recommends
     - git submodule update --init
     - pnpm run --filter=${PACKAGE} build
     - pnpm run --filter=${PACKAGE} migrate
