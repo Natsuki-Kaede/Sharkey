@@ -4,7 +4,6 @@ stages:
   - test
   - deploy
 
-
 .node:
   before_script:
     - corepack enable
@@ -21,10 +20,11 @@ stages:
       # to speed up linting
       - packages/*/.eslintcache
       - packages/*/*/.eslintcache
-
-.lint:
+      # dont need to redownload the submodules every time
+      - fluent-emojis
+      - tossface-emojis
+.matrix:
   extends: .node
-  stage: lint
   parallel:
     matrix:
       - PACKAGE: backend
@@ -35,8 +35,27 @@ stages:
       - PACKAGE: misskey-reversi
       - PACKAGE: shared
       - PACKAGE: sw
+
+.lint:
+  allow_failure: true
+  extends: .matrix
+  stage: lint
   script:
     - pnpm run --filter=${PACKAGE} lint
+
+.test:
+  variables:
+    POSTGRES_PASSWORD: ci
+  extends: .matrix
+  stage: test
+  script:
+    - cp .config/ci.yml .config/default.yml
+    - cp .config/ci.yml .config/test.yml
+    - apt-get update && apt-get install -y git ffmpeg
+    - git submodule update --init
+    - pnpm run --filter=${PACKAGE} build
+    - pnpm run --filter=${PACKAGE} migrate
+    - pnpm run --filter=${PACKAGE} test
 
 lint:lts:
   extends: .lint
@@ -46,29 +65,23 @@ lint:latest:
   extends: .lint
   image: node:latest
 
+test:lts:
+  extends: .test
+  services:
+    - postgres:15
+    - redis
+  image: node:lts-bullseye
 
-
-
-# test:
-#   stage: test
-#   parallel:
-#     matrix:
-#       - PACKAGE: backend
-#       - PACKAGE: frontend
-#       - PACKAGE: megalodon
-#       - PACKAGE: misskey-bubble-game
-#       - PACKAGE: misskey-js
-#       - PACKAGE: misskey-reversi
-#       - PACKAGE: shared
-#       - PACKAGE: sw
-
+test:latest:
+  extends: .test
+  services:
+    - postgres:16
+    - redis
+  image: node:latest
 
 # testCommit:
 #   stage: test
 #   image: node:iron
-#   services:
-#     - postgres:15
-#     - redis
 #   variables:
 #     POSTGRES_PASSWORD: ci
 #   script:
