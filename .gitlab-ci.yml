@@ -100,8 +100,9 @@ lint:frontend:lts:
     - cp .config/ci.yml .config/test.yml
     - apt-get update && apt-get install -y git ffmpeg --no-install-recommends
     - git submodule update --init
-    - pnpm run --filter=..${PACKAGE} build
-    - pnpm run --filter=${PACKAGE} migrate
+    - cd packages/backend
+    - pnpm run build
+    - pnpm run migrate
     - pnpm run --filter=${PACKAGE} test
 
 test:lts:
