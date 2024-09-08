@@ -33,7 +33,6 @@ stages:
       - PACKAGE: misskey-bubble-game
       - PACKAGE: misskey-js
       - PACKAGE: misskey-reversi
-      - PACKAGE: shared
       - PACKAGE: sw
   allow_failure: true
   extends: .node
@@ -78,7 +77,6 @@ lint:frontend:latest:
       - PACKAGE: misskey-bubble-game
       - PACKAGE: misskey-js
       - PACKAGE: misskey-reversi
-      - PACKAGE: shared
       - PACKAGE: sw
   extends: .node
   stage: test
