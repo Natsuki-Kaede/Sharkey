@@ -1,114 +1,255 @@
+---
 stages:
+  - lint
   - test
   - deploy
 
-testCommit:
-  stage: test
-  image: node:iron
-  services:
-    - postgres:15
-    - redis
-  variables:
-    POSTGRES_PASSWORD: ci
-  script:
-    - apt-get update && apt-get install -y git wget curl build-essential python3 ffmpeg
-    - cp .config/ci.yml .config/default.yml
-    - cp .config/ci.yml .config/test.yml
+.node:
+  before_script:
     - corepack enable
     - corepack prepare pnpm@latest --activate
     - git submodule update --init
     - pnpm install --frozen-lockfile
-    - pnpm run build
-    - pnpm run migrate
-    - pnpm run --filter='!megalodon' --workspace-concurrency=1 test
-    - pnpm run --filter=backend lint
-    - pnpm run --filter=frontend eslint
   cache:
     key: test
     policy: pull-push
     when: on_success
     paths:
-     - node_modules/
-     - packages/*/node_modules/
-  only:
-    - develop
-    - merge_requests
-    - stable
+      - node_modules/
+      - packages/*/node_modules/
+      # to speed up linting
+      - packages/*/.eslintcache
+      - packages/*/*/.eslintcache
+      # dont need to redownload the submodules every time
+      - fluent-emojis
+      - tossface-emojis
 
-getImageTag:
-  stage: deploy
-  image: ubuntu:latest
-  script:
-    - apt-get update && apt-get install -y jq
-    - |
-      if test -n "$CI_COMMIT_TAG"; then
-        tag="$CI_COMMIT_TAG"
-      elif test "$CI_COMMIT_BRANCH" == "stable"; then
-        tag="latest"
-      elif test "$CI_COMMIT_BRANCH" == "develop"; then
-        tag="develop"
-      else
-        tag="$CI_COMMIT_BRANCH"
-      fi
-      version=$(cat package.json | jq -r '.version')
-    - echo "REGISTRY_PUSH_TAG=$tag" >> build.env
-    - echo "REGISTRY_PUSH_VERSION=$version" >> build.env
-  artifacts:
-    reports:
-      dotenv: build.env
-  only:
-    - stable
-    - develop
-    - tags
-
-buildDocker:
-  stage: deploy
-  needs:
-    - job: getImageTag
-      artifacts: true
+.lint:
   parallel:
     matrix:
-      - ARCH: amd64
-      - ARCH: arm64
-  tags:
-    - ${ARCH}
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+      - PACKAGE: backend
+      # - PACKAGE: frontend # Because we it needs a different command
+      # - PACKAGE: megalodon  # Currently fails because no linter
+      - PACKAGE: misskey-bubble-game
+      - PACKAGE: misskey-js
+      - PACKAGE: misskey-reversi
+      - PACKAGE: sw
+  allow_failure: true
+  extends: .node
+  stage: lint
   script:
-    - >-
-      /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_VERSION}-${ARCH}"
-  only:
-    - stable
-    - develop
-    - tags
+    - pnpm run --filter=${PACKAGE} lint
 
-mergeManifests:
-  stage: deploy
-  needs:
-    - job: buildDocker
-      artifacts: false
-    - job: getImageTag
-      artifacts: true
-  tags:
-    - docker
-  image:
-      name: mplatform/manifest-tool:alpine
-      entrypoint: [""]
+.lint:frontend:
+  parallel:
+    matrix:
+      - PACKAGE: frontend # Because we it needs a different command
+  allow_failure: true
+  extends: .lint
+  stage: lint
   script:
-    - >-
-      manifest-tool
-      --username=${CI_REGISTRY_USER}
-      --password=${CI_REGISTRY_PASSWORD}
-      push from-args
-      --platforms linux/amd64,linux/arm64
-      --tags ${REGISTRY_PUSH_VERSION}
-      --template ${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_VERSION}-ARCH
-      --target ${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_TAG}
-  only:
-    - stable
-    - develop
-    - tags
+    - pnpm run --filter=${PACKAGE} eslint
+
+
+lint:lts:
+  extends: .lint
+  image: node:lts-bullseye
+
+# lint:latest:
+#   extends: .lint
+#   image: node:latest
+
+lint:frontend:lts:
+  extends: .lint:frontend
+  image: node:lts-bullseye
+
+# lint:frontend:latest:
+#   extends: .lint:frontend
+#   image: node:latest
+
+
+.test:
+  parallel:
+    matrix:
+      # - PACKAGE: backend # Disabled here because it needs extra stuff
+      - PACKAGE: frontend
+      - PACKAGE: megalodon
+      - PACKAGE: misskey-bubble-game
+      - PACKAGE: misskey-js
+      - PACKAGE: misskey-reversi
+      - PACKAGE: sw
+  extends: .node
+  stage: test
+  script:
+    - git submodule update --init
+    - pnpm run --filter=..${PACKAGE} build
+    - pnpm run --filter=${PACKAGE} test
+
+.test:backend:
+  extends: .test
+  parallel:
+    matrix:
+      - PACKAGE: backend
+  variables:
+    POSTGRES_PASSWORD: ci
+  services:
+    - postgres:15
+    - redis
+  script:
+    - cp .config/ci.yml .config/default.yml
+    - cp .config/ci.yml .config/test.yml
+    - apt-get update && apt-get install -y git ffmpeg --no-install-recommends
+    - git submodule update --init
+    - cd packages/backend
+    - pnpm run build
+    - pnpm run migrate
+    - pnpm run --filter=${PACKAGE} test
+
+test:lts:
+  extends: .test
+  image: node:lts-bullseye
+
+# test:latest:
+#   extends: .test
+#   image: node:latest
+
+test:backend:lts:
+  extends: .test:backend
+  image: node:lts-bullseye
+
+# test:backend:latest:
+#   extends: .test:backend
+#   image: node:latest
+
+# testCommit:
+#   stage: test
+#   image: node:iron
+#   variables:
+#     POSTGRES_PASSWORD: ci
+#   script:
+#     - apt-get update && apt-get install -y git wget curl build-essential python3 ffmpeg
+#     - cp .config/ci.yml .config/default.yml
+#     - cp .config/ci.yml .config/test.yml
+#     - corepack enable
+#     - corepack prepare pnpm@latest --activate
+#     - git submodule update --init
+#     - pnpm install --frozen-lockfile
+#     - pnpm run build
+#     - pnpm run migrate
+#     - pnpm run --filter='!megalodon' --workspace-concurrency=1 test
+#     - pnpm run --filter=backend lint
+#     - pnpm run --filter=frontend eslint
+#   cache:
+#     key: test
+#     policy: pull-push
+#     when: on_success
+#     paths:
+#       - node_modules/
+#       - packages/*/node_modules/
+#   only:
+#     - develop
+#     - merge_requests
+#     - stable
+
+# Build Container for mr:
+#   stage: deploy
+#   parallel:
+#     matrix:
+#       - ARCH: amd64
+#       - ARCH: arm64
+#   tags:
+#     - ${ARCH}
+#   image:
+#     name: gcr.io/kaniko-project/executor:debug
+#     entrypoint: [""]
+#   before_script:
+#     - mkdir -p /kaniko/.docker
+#     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n ${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+#   script:
+#     - >-
+#       /kaniko/executor
+#       --context "${CI_PROJECT_DIR}"
+#       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+#       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+#       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-latest
+#       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+#   only:
+#     - merge_requests
+
+# getImageTag:
+#   stage: deploy
+#   image: ubuntu:latest
+#   script:
+#     - apt-get update && apt-get install -y jq
+#     - |
+#       if test -n "$CI_COMMIT_TAG"; then
+#         tag="$CI_COMMIT_TAG"
+#       elif test "$CI_COMMIT_BRANCH" == "stable"; then
+#         tag="latest"
+#       elif test "$CI_COMMIT_BRANCH" == "develop"; then
+#         tag="develop"
+#       else
+#         tag="$CI_COMMIT_BRANCH"
+#       fi
+#       version=$(cat package.json | jq -r '.version')
+#     - echo "REGISTRY_PUSH_TAG=$tag" >> build.env
+#     - echo "REGISTRY_PUSH_VERSION=$version" >> build.env
+#   artifacts:
+#     reports:
+#       dotenv: build.env
+#   only:
+#     - stable
+#     - develop
+#     - tags
+
+# buildDocker:
+#   stage: deploy
+#   needs:
+#     - job: getImageTag
+#       artifacts: true
+#   parallel:
+#     matrix:
+#       - ARCH: amd64
+#       - ARCH: arm64
+#   tags:
+#     - ${ARCH}
+#   image:
+#     name: gcr.io/kaniko-project/executor:debug
+#     entrypoint: [""]
+#   script:
+#     - >-
+#       /kaniko/executor
+#       --context "${CI_PROJECT_DIR}"
+#       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+#       --destination "${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_VERSION}-${ARCH}"
+#   only:
+#     - stable
+#     - develop
+#     - tags
+
+# mergeManifests:
+#   stage: deploy
+#   needs:
+#     - job: buildDocker
+#       artifacts: false
+#     - job: getImageTag
+#       artifacts: true
+#   tags:
+#     - docker
+#   image:
+#       name: mplatform/manifest-tool:alpine
+#       entrypoint: [""]
+#   script:
+#     - >-
+#       manifest-tool
+#       --username=${CI_REGISTRY_USER}
+#       --password=${CI_REGISTRY_PASSWORD}
+#       push from-args
+#       --platforms linux/amd64,linux/arm64
+#       --tags ${REGISTRY_PUSH_VERSION}
+#       --template ${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_VERSION}-ARCH
+#       --target ${CI_REGISTRY_IMAGE}:${REGISTRY_PUSH_TAG}
+#   only:
+#     - stable
+#     - develop
+#     - tags
