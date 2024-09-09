@@ -269,12 +269,12 @@
 		}
 
 		.button-big {
-			background: linear-gradient(90deg, rgb(134, 179, 0), rgb(74, 179, 0));
+			background: linear-gradient(90deg, rgb(188, 151, 240), rgb(240, 151, 232));
 			line-height: 50px;
 		}
 
 		.button-big:hover {
-			background: rgb(153, 204, 0);
+			background: rgb(134, 74, 240);
 		}
 
 		.button-small {
@@ -294,13 +294,13 @@
 		}
 
 		.button-label-small {
-			color: rgb(153, 204, 0);
+			color: rgb(134, 74, 240);
 			font-size: 16px;
 			padding: 12px;
 		}
 
 		a {
-			color: rgb(134, 179, 0);
+			color: rgb(160, 133, 199);
 			text-decoration: none;
 		}
 
