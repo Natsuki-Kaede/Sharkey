@@ -3673,7 +3673,7 @@ export type paths = {
   '/sponsors': {
     /**
      * sponsors
-     * @description Get Sharkey GH Sponsors
+     * @description Get Sharkey Sponsors
      *
      * **Credential required**: *No*
      */
@@ -4237,6 +4237,7 @@ export type components = {
       reactionAndUserPairCache?: string[];
       clippedCount?: number;
       myReaction?: string | null;
+			renotedByMe: boolean;
     };
     NoteReaction: {
       /**
@@ -27988,7 +27989,7 @@ export type operations = {
   };
   /**
    * sponsors
-   * @description Get Sharkey GH Sponsors
+   * @description Get Sharkey Sponsors
    *
    * **Credential required**: *No*
    */

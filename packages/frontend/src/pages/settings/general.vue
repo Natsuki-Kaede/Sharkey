@@ -178,6 +178,31 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<div class="_gaps_m">
 			<div class="_gaps_s">
+				<MkRadios v-model="defaultFontFace">
+					<template #label>Default Font</template>
+					<template #caption>
+						Some Chinese font files are large, please wait for a while for the font to load after switching.
+						为了更好的体验，仅支持简体的峄山碑篆体和仅支持繁体的崇羲篆體会互相补充。
+					</template>
+					<option value="sharkey-default">Sharkey Default</option>
+					<option value="maokentangyuan">猫啃糖圆</option>
+					<option value="chillroundgothic">寒蝉圆黑</option>
+					<option value="lxgw-wenkai">霞鹜文楷</option>
+					<option value="clearsans">思源屏显臻宋</option>
+					<option value="genryomin2">源流明體</option>
+					<option value="jinghualaosong">京華老宋體</option>
+					<option value="misskey-biz">BIZ UDGothic</option>
+					<option value="roboto">Roboto</option>
+					<option value="arial">Arial</option>
+					<option value="times">Times</option>
+					<option value="yishanbeizhuan">峄山碑篆体</option>
+					<option value="chongxiseal">崇羲篆體</option>
+					<option value="fusion-pixel-8">缝合像素体8px</option>
+					<option value="fusion-pixel-10">缝合像素体10px</option>
+					<option value="fusion-pixel-12">缝合像素体12px</option>
+				</MkRadios>
+			</div>
+			<div class="_gaps_s">
 				<MkSwitch v-model="reduceAnimation">{{ i18n.ts.reduceUiAnimation }}</MkSwitch>
 				<MkSwitch v-model="useBlurEffect">{{ i18n.ts.useBlurEffect }}</MkSwitch>
 				<MkSwitch v-model="useBlurEffectForModal">{{ i18n.ts.useBlurEffectForModal }}</MkSwitch>
@@ -203,13 +228,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div style="margin: 8px 0 0 0; font-size: 1.5em;"><Mfm :key="emojiStyle" text="🍮🍦🍭🍩🍰🍫🍬🥞🍪"/></div>
 			</div>
 
-			<MkRadios v-model="fontSize">
+			<MkRange v-model="fontSizeNumber" :min="0" :max="10" :step="1" continuousUpdate>
 				<template #label>{{ i18n.ts.fontSize }}</template>
-				<option :value="null"><span style="font-size: 14px;">Aa</span></option>
-				<option value="1"><span style="font-size: 15px;">Aa</span></option>
-				<option value="2"><span style="font-size: 16px;">Aa</span></option>
-				<option value="3"><span style="font-size: 17px;">Aa</span></option>
-			</MkRadios>
+				<template #caption>
+					<div :style="`font-size: ${fontSizePx}px;`">
+						<span>
+							A quick brown fox jumps over the lazy dog<br>
+							一只敏捷的棕色狐狸跳过那只懒狗<br>
+							機敏な茶色のキツネが怠惰な犬を飛び越える<br>
+						</span>
+						<MkButton v-if="fontSizeNumber !== fontSizeNumberOld" @click.stop="saveFontSize">{{ i18n.ts.save }}</MkButton>
+					</div>
+				</template>
+			</MkRange>
 
 			<MkRadios v-model="cornerRadius">
 				<template #label>{{ i18n.ts.cornerRadius }}</template>
@@ -247,6 +278,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<option value="app">{{ i18n.ts._contextMenu.app }}</option>
 				<option value="appWithShift">{{ i18n.ts._contextMenu.appWithShift }}</option>
 				<option value="native">{{ i18n.ts._contextMenu.native }}</option>
+			</MkSelect>
+			<MkSelect v-model="autoSpacingBehaviour">
+				<template #label>自动空格</template>
+				<option :value="null">{{ i18n.ts.disabled }}</option>
+				<option value="all">{{ i18n.ts.all }}</option>
+				<option value="special">智能</option>
+				<template #caption>在帖子正文的中文与英文之间自动加入缺失的空格。当选择“智能”时，一部分通常认为是混合词的（B超，X光等）会被保留</template>
 			</MkSelect>
 			<MkRange v-model="numberOfPageCache" :min="1" :max="10" :step="1" easing>
 				<template #label>{{ i18n.ts.numberOfPageCache }}</template>
@@ -351,10 +389,21 @@ import { deepMerge } from '@/scripts/merge.js';
 import { worksOnInstance } from '@/scripts/favicon-dot.js';
 
 const lang = ref(miLocalStorage.getItem('lang'));
-const fontSize = ref(miLocalStorage.getItem('fontSize'));
+const fontSizeNumber = ref(Number(miLocalStorage.getItem('fontSize') || 2));
+const fontSizeNumberOld = ref(fontSizeNumber.value);
 const cornerRadius = ref(miLocalStorage.getItem('cornerRadius'));
 const useSystemFont = ref(miLocalStorage.getItem('useSystemFont') != null);
+const defaultFontFace = ref(miLocalStorage.getItem('defaultFontFace'));
 const dataSaver = ref(defaultStore.state.dataSaver);
+
+const fontSizePx = computed(() => fontSizeNumber.value + 14);
+
+function saveFontSize() {
+	miLocalStorage.setItem('fontSize', fontSizeNumber.value.toString());
+	window.document.documentElement.classList.remove('f-' + fontSizeNumberOld.value);
+	window.document.documentElement.classList.add('f-' + fontSizeNumber.value);
+	fontSizeNumberOld.value = fontSizeNumber.value;
+}
 
 async function reloadAsk() {
 	const { canceled } = await os.confirm({
@@ -435,19 +484,12 @@ const useNativeUIForVideoAudioPlayer = computed(defaultStore.makeGetterSetter('u
 const alwaysConfirmFollow = computed(defaultStore.makeGetterSetter('alwaysConfirmFollow'));
 const confirmWhenRevealingSensitiveMedia = computed(defaultStore.makeGetterSetter('confirmWhenRevealingSensitiveMedia'));
 const contextMenu = computed(defaultStore.makeGetterSetter('contextMenu'));
+const autoSpacingBehaviour = computed(defaultStore.makeGetterSetter('chineseAutospacing'));
 
 watch(lang, () => {
 	miLocalStorage.setItem('lang', lang.value as string);
 	miLocalStorage.removeItem('locale');
 	miLocalStorage.removeItem('localeVersion');
-});
-
-watch(fontSize, () => {
-	if (fontSize.value == null) {
-		miLocalStorage.removeItem('fontSize');
-	} else {
-		miLocalStorage.setItem('fontSize', fontSize.value);
-	}
 });
 
 watch(cornerRadius, () => {
@@ -466,6 +508,18 @@ watch(useSystemFont, () => {
 	}
 });
 
+watch(defaultFontFace, (nv, ov) => {
+	if (ov != null) {
+		document.documentElement.classList.remove(`default-font-${ov}`);
+	}
+	if (nv != null) {
+		document.documentElement.classList.add(`default-font-${nv}`);
+		miLocalStorage.setItem('defaultFontFace', nv);
+	} else {
+		miLocalStorage.removeItem('defaultFontFace');
+	}
+});
+
 watch(noteDesign, async (newval) => {
 	if (noteDesign.value === newval) {
 		await reloadAsk();
@@ -475,7 +529,6 @@ watch(noteDesign, async (newval) => {
 watch([
 	hemisphere,
 	lang,
-	fontSize,
 	cornerRadius,
 	useSystemFont,
 	enableInfiniteScroll,

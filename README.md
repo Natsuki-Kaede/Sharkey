@@ -3,6 +3,8 @@
 	<img src="https://activitypub.software/TransFem-org/Sharkey/-/raw/develop/packages/frontend/assets/sharkey.svg" alt="Sharkey logo" style="border-radius:50%" width="300"/>
 </a>
 
+## Sharkey Stelpolva Edition
+
 **🌎 **[Sharkey](https://joinsharkey.org/)** is an open source, decentralized social media platform that's free forever! 🚀**
 
 ---
@@ -22,6 +24,37 @@
 ---
 
 </div>
+
+## 相对于 Sharkey 的修改：
+
+### DATABASE CHANGES
+
+- 添加了 pgroonga 用于全文搜索
+
+### Other
+
+- 添加了 Google Translation Fallback
+- 更好的中文翻译
+- 在 MkPostForm 上添加了 autosize （自动随着打字扩张文本框）
+- 还原了 Misskey 的 Hashtag 搜索设置，即你能搜到任何你可见的打了某个 Hashtag 的帖子
+- MkUrlPreview中添加了对 ActivityPub Note 的 Quote-style 预览支持
+- 允许 MkUrlPreview 打开 Bilibili 播放器
+- 更好的 Notification Read 逻辑，自动使得通知变为已读
+- Firefish 风格的 InstanceTicker（点击打开实例信息页面而不是转到原帖子）
+- 注册dialog上面可以写多行文本和MFM
+- 修复了SkDetailedNote帖子被编辑后不会更新MFM的问题
+- 允许多行 CW
+- 许多微小的可能影响体验的bug/feature修复
+- 允许切换界面字体，并添加了大量中文字体
+- 允许的界面字体范围大大增加，默认字体从14px改为16px
+- 在天线中添加特殊关键词
+	- `domain:xxx.com` 匹配来自 `xxx.com` 的任意帖子
+	- `domain:here` 匹配来自本实例的任意帖子
+- 允许加载某些白名单远程服务器的 AvatarDecorations （仅限 Misskey系 ）
+  - 请在 .config/default.yml 中添加一个字符串数组 `avatarDecorationAllowedHosts`
+	- 它是允许加载 Misskey 的头像挂件的白名单实例
+	- 启用了 MediaProxy，因此应该不用担心安全风险
+- 添加功能允许自动在中文与英文之间添加空格
 
 <div>
 

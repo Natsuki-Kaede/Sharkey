@@ -72,7 +72,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<span v-if="appearNote.updatedAt" ref="menuVersionsButton" style="margin-left: 0.5em;" title="Edited" @mousedown="menuVersions()"><i class="ph-pencil-simple ph-bold ph-lg"></i></span>
 						<span v-if="appearNote.localOnly" style="margin-left: 0.5em;" :title="i18n.ts._visibility['disableFederation']"><i class="ti ti-rocket-off"></i></span>
 					</div>
-					<SkInstanceTicker v-if="showTicker" :instance="appearNote.user.instance"/>
+					<SkInstanceTicker v-if="showTicker" :instance="appearNote.user.instance" :host="note.user.host"/>
 				</div>
 			</div>
 		</header>
@@ -276,6 +276,7 @@ import { boostMenuItems, type Visibility } from '@/scripts/boost-quote.js';
 import { isEnabledUrlPreview } from '@/instance.js';
 import { getAppearNote } from '@/scripts/get-appear-note.js';
 import { type Keymap } from '@/scripts/hotkey.js';
+import { spacingNote } from '@/scripts/autospacing';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
@@ -320,7 +321,7 @@ const reactButton = shallowRef<HTMLElement>();
 const quoteButton = shallowRef<HTMLElement>();
 const clipButton = shallowRef<HTMLElement>();
 const likeButton = shallowRef<HTMLElement>();
-const appearNote = computed(() => getAppearNote(note.value));
+const appearNote = computed(() => spacingNote(getAppearNote(note.value)));
 const galleryEl = shallowRef<InstanceType<typeof MkMediaList>>();
 const isMyRenote = $i && ($i.id === note.value.userId);
 const showContent = ref(defaultStore.state.uncollapseCW);
@@ -329,9 +330,9 @@ const renoted = ref(false);
 const muted = ref($i ? checkWordMute(appearNote.value, $i, $i.mutedWords) : false);
 const translation = ref<Misskey.entities.NotesTranslateResponse | null>(null);
 const translating = ref(false);
-const parsed = appearNote.value.text ? mfm.parse(appearNote.value.text) : null;
-const urls = parsed ? extractUrlFromMfm(parsed).filter((url) => appearNote.value.renote?.url !== url && appearNote.value.renote?.uri !== url) : null;
-const animated = computed(() => parsed ? checkAnimationFromMfm(parsed) : null);
+const parsed = computed(() => appearNote.value.text ? mfm.parse(appearNote.value.text) : null);
+const urls = computed(() => parsed.value ? extractUrlFromMfm(parsed.value).filter((url) => appearNote.value.renote?.url !== url && appearNote.value.renote?.uri !== url) : null);
+const animated = computed(() => parsed.value ? checkAnimationFromMfm(parsed.value) : null);
 const allowAnim = ref(defaultStore.state.advancedMfm && defaultStore.state.animatedMfm ? true : false);
 const showTicker = (defaultStore.state.instanceTicker === 'always') || (defaultStore.state.instanceTicker === 'remote' && appearNote.value.user.instance);
 const conversation = ref<Misskey.entities.Note[]>([]);
@@ -345,13 +346,7 @@ watch(() => props.expandAllCws, (expandAllCws) => {
 });
 
 if ($i) {
-	misskeyApi('notes/renotes', {
-		noteId: appearNote.value.id,
-		userId: $i.id,
-		limit: 1,
-	}).then((res) => {
-		renoted.value = res.length > 0;
-	});
+	renoted.value = appearNote.value.renotedByMe;
 }
 
 let renoting = false;
@@ -505,7 +500,7 @@ if (appearNote.value.reactionAcceptance === 'likeOnly') {
 	});
 }
 
-function renote(visibility: Visibility, localOnly: boolean = false) {
+function renote(visibility: Visibility, localOnly = false) {
 	pleaseLogin(undefined, pleaseLoginContext.value);
 	showMovedDialog();
 
@@ -1166,7 +1161,7 @@ onUnmounted(() => {
 	border-color: var(--accent);
 }
 
-@container (max-width: 500px) {
+@container (max-width: 380px) {
 	.root {
 		font-size: 0.9em;
 	}
@@ -1187,7 +1182,7 @@ onUnmounted(() => {
 	}
 }
 
-@container (max-width: 350px) {
+@container (max-width: 580px) {
 	.noteFooterButton {
 		&:not(:last-child) {
 			margin-right: 0.1em;
