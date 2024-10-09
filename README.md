@@ -66,6 +66,25 @@ https://github.com/paricafe/misskey
 - 对于含有需要高亮的代码的帖子，fallback显示非高亮的代码而非MkLoading
 - 在 EmojiPicker 添加预览表情
 - 在 Sharkey Stelpolva 中，递归地 fetch 被回复帖子时如果出错不再会递归地将错误抛下，导致整个任务失败，而是会静默吞下该错误
+- 帖子时光机：可以查看某日期的时间线和用户发帖
+- 私密化：可以批量/单独私密化某些帖子
+- 允许用户查看她们发送但对方还没批准的关注请求
+
+## 从 Sharkey 迁移？
+
+> [!NOTE]
+> Sharkey Stelpolva Edition 不提供 Docker 安装方式。如果需要 Docker 安装你可以自己编辑 Docker Compose 并添加下面的额外依赖。
+
+Sharkey Stelpolva 和 Sharkey 是完全兼容的，并且跟随 Sharkey 的最新 develop 分支，对于已有的 Sharkey 迁移到 Sharkey Stelpolva 你只需要额外安装一些依赖即可：
+
+- Pgroonga: 按照 https://pgroonga.github.io/install/ 的说明进行安装，随后进入到 Sharkey 的数据库执行：
+```SQL
+CREATE EXTENSION pgroonga;
+```
+
+## 从 Sharkey Stelpolva 迁移回 Sharkey？
+
+不需要做任何额外处理，直接更换分支即可
 
 <div>
 

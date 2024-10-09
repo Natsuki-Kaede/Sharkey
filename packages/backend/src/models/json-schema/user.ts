@@ -104,6 +104,10 @@ export const packedUserLiteSchema = {
 						type: 'number',
 						nullable: false, optional: true,
 					},
+					showBelow: {
+						type: 'boolean',
+						nullable: false, optional: true,
+					},
 				},
 			},
 		},
@@ -566,6 +570,10 @@ export const packedMeDetailedOnlySchema = {
 			nullable: false, optional: false,
 		},
 		hasPendingReceivedFollowRequest: {
+			type: 'boolean',
+			nullable: false, optional: false,
+		},
+		hasPendingSentFollowRequest: {
 			type: 'boolean',
 			nullable: false, optional: false,
 		},

@@ -377,6 +377,13 @@ export class UserEntityService implements OnModuleInit {
 	}
 
 	@bindThis
+	public async getHasPendingSentFollowRequest(userId: MiUser['id']): Promise<boolean> {
+		return this.followRequestsRepository.existsBy({
+			followerId: userId,
+		});
+	}
+
+	@bindThis
 	public getOnlineStatus(user: MiUser): 'unknown' | 'online' | 'active' | 'offline' {
 		if (user.hideOnlineStatus) return 'unknown';
 		if (user.lastActiveDate == null) return 'unknown';
@@ -524,6 +531,7 @@ export class UserEntityService implements OnModuleInit {
 							flipH: ud.flipH || undefined,
 							offsetX: ud.offsetX || undefined,
 							offsetY: ud.offsetY || undefined,
+							showBelow: ud.showBelow || undefined,
 							url: decorations.find(d => d.id === ud.id)!.url,
 						})))
 				: [];
@@ -658,6 +666,7 @@ export class UserEntityService implements OnModuleInit {
 				hasUnreadChannel: false, // 後方互換性のため
 				hasUnreadNotification: notificationsInfo?.hasUnread, // 後方互換性のため
 				hasPendingReceivedFollowRequest: this.getHasPendingReceivedFollowRequest(user.id),
+				hasPendingSentFollowRequest: this.getHasPendingSentFollowRequest(user.id),
 				unreadNotificationsCount: notificationsInfo?.unreadCount,
 				mutedWords: profile!.mutedWords,
 				hardMutedWords: profile!.hardMutedWords,

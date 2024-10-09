@@ -425,10 +425,10 @@ withReplies: "包括回复"
 connectedTo: "您的账号已连到接以下第三方账号"
 notesAndReplies: "帖子与回复"
 withFiles: "附件"
-silence: "禁言"
-silenceConfirm: "确认要禁言吗？"
-unsilence: "解除禁言"
-unsilenceConfirm: "要解除禁言吗？"
+silence: "静默"
+silenceConfirm: "确认要静默吗？"
+unsilence: "解除静默"
+unsilenceConfirm: "要解除静默吗？"
 popularUsers: "热门用户"
 recentlyUpdatedUsers: "最近投稿的用户"
 recentlyRegisteredUsers: "最近登录的用户"
@@ -605,7 +605,7 @@ deleteAllFilesConfirm: "要删除所有文件吗？"
 removeAllFollowing: "取消所有关注"
 removeAllFollowingDescription: "取消来自 {host} 的所有关注者。当服务器不再存在时执行。"
 userSuspended: "该用户已被冻结。"
-userSilenced: "该用户已被禁言。"
+userSilenced: "该用户已被静默。"
 yourAccountSuspendedTitle: "账户已被冻结"
 yourAccountSuspendedDescription: "由于违反了服务器的服务条款或其他原因，该账户已被冻结。 您可以与管理员联系以了解更多信息。 请不要创建一个新的账户。"
 tokenRevoked: "令牌无效"
@@ -1268,6 +1268,21 @@ stpvAntennaPatch: |
   具体而言， `domain:example.com` 这个特殊关键词会匹配所有来自 `example.com` 的帖子。这个关键词同样能使用在 OR 语法中。
   特别地，你必须用 `domain:here` 来匹配本实例的帖子。
 stpvPgroongaSearchInstru: 可以使用 `A OR B` 的词法来搜索包含 A 或者 B 的帖子。`A B`（中间有空格）代表同时包含关键词 A 和 B 的帖子。
+timeTravel: 时光机
+timeTravelDescription: 显示该日期以前的帖子
+makePrivate:
+  text: 私密化
+  description: 私密化帖子将使帖子变得仅自己可见，并向远程服务器发送删除标记。
+  confirm: 你确定要私密化该帖字吗？
+  warn: 批量私密化帖子是**永久的、不可逆**的过程，并且对服务器有一定负载。请谨慎操作。你每小时只能批量私密化一次帖子。
+  sinceDate: 开始日期
+  untilDate: 结束日期
+  dangerTip: 由于这是一个非常危险的操作，请输入 `{text}` 来启用这项功能
+  manyCount: 共有 {count} 个帖子将会被私密化
+  textmany: 批量私密化！
+  manyWarn: 真的要批量私密化这 {count} 个帖子吗？这个操作不可逆，你的这些帖子会永远只有你自己可见（真的！）
+  didStart: 私密化进程已经开始
+  bulkText: 批量私密化帖子
 _delivery:
   status: "投递状态"
   stop: "停止投递"
