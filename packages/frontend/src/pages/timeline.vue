@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div :class="$style.tl">
 					<MkTimeline
 						ref="tlComponent"
-						:key="src + withRenotes + withReplies + onlyFiles"
+						:key="src + withRenotes + withBots + withReplies + onlyFiles"
 						:src="src.split(':')[0]"
 						:list="src.split(':')[1]"
 						:withRenotes="withRenotes"
@@ -55,8 +55,11 @@ import { deepMerge } from '@/scripts/merge.js';
 import { MenuItem } from '@/types/menu.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { availableBasicTimelines, hasWithReplies, isAvailableBasicTimeline, isBasicTimeline, basicTimelineIconClass } from '@/timelines.js';
+import { useRouter } from '@/router/supplier.js';
 
 provide('shouldOmitHeaderTitle', true);
+
+const router = useRouter();
 
 const tlComponent = shallowRef<InstanceType<typeof MkTimeline>>();
 const rootEl = shallowRef<HTMLElement>();
@@ -269,6 +272,10 @@ const headerActions = computed(() => {
 					type: 'switch',
 					text: i18n.ts.showRenotes,
 					ref: withRenotes,
+				}, {
+					type: 'switch',
+					text: i18n.ts.showBots,
+					ref: withBots,
 				}, isBasicTimeline(src.value) && hasWithReplies(src.value) ? {
 					type: 'switch',
 					text: i18n.ts.showRepliesToOthersInTimelineAll,
@@ -319,6 +326,11 @@ const headerTabs = computed(() => [...(defaultStore.reactiveState.pinnedUserList
 	icon: basicTimelineIconClass(tl),
 	iconOnly: true,
 })), {
+	icon: 'ph-user-check ph-bold ph-lg',
+	title: i18n.ts.following,
+	iconOnly: true,
+	onClick: () => router.push('/following-feed'),
+}, {
 	icon: 'ti ti-list',
 	title: i18n.ts.lists,
 	iconOnly: true,

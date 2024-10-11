@@ -261,6 +261,18 @@ export interface Locale extends ILocale {
      */
     "copyProfileUrl": string;
     /**
+     * Link to external site warning exclusion list
+     */
+    "trustedLinkUrlPatterns": string;
+    /**
+     * Separate with spaces for an AND condition or with line breaks for an OR condition. Using surrounding keywords with slashes will turn them into a regular expression. If you write only the domain name, it will be a backward match.
+     */
+    "trustedLinkUrlPatternsDescription": string;
+    /**
+     * Open
+     */
+    "open": string;
+    /**
      * Search for a user
      */
     "searchUser": string;
@@ -368,6 +380,10 @@ export interface Locale extends ILocale {
      * Followers
      */
     "followers": string;
+    /**
+     * Mutuals
+     */
+    "mutuals": string;
     /**
      * Follows you
      */
@@ -505,6 +521,10 @@ export interface Locale extends ILocale {
      */
     "pinnedNote": string;
     /**
+     * Pinned
+     */
+    "pinnedOnly": string;
+    /**
      * Pin to profile
      */
     "pinned": string;
@@ -589,6 +609,10 @@ export interface Locale extends ILocale {
      */
     "mute": string;
     /**
+     * Muted
+     */
+    "muted": string;
+    /**
      * Unmute
      */
     "unmute": string;
@@ -596,6 +620,10 @@ export interface Locale extends ILocale {
      * Mute Boosts
      */
     "renoteMute": string;
+    /**
+     * Boosts muted
+     */
+    "renoteMuted": string;
     /**
      * Unmute Boosts
      */
@@ -612,6 +640,10 @@ export interface Locale extends ILocale {
      * Mark all media from user as NSFW
      */
     "markAsNSFW": string;
+    /**
+     * Mark as NSFW
+     */
+    "markInstanceAsNSFW": string;
     /**
      * Suspend
      */
@@ -909,6 +941,10 @@ export interface Locale extends ILocale {
      */
     "mediaSilenceThisInstance": string;
     /**
+     * Reject reports from this instance
+     */
+    "rejectReports": string;
+    /**
      * Operations
      */
     "operations": string;
@@ -1069,6 +1105,18 @@ export interface Locale extends ILocale {
      */
     "blocked": string;
     /**
+     * This host is blocked implicitly because a base domain is blocked. To unblock this host, first unblock the base domain(s).
+     */
+    "blockedByBase": string;
+    /**
+     * This host is silenced implicitly because a base domain is silenced. To un-silence this host, first un-silence the base domain(s).
+     */
+    "silencedByBase": string;
+    /**
+     * This host's media is silenced implicitly because a base domain's media is silenced. To un-silence this host, first un-silence the base domain(s).
+     */
+    "mediaSilencedByBase": string;
+    /**
      * Suspended
      */
     "suspended": string;
@@ -1180,10 +1228,6 @@ export interface Locale extends ILocale {
      * Are you sure?
      */
     "areYouSure": string;
-    /**
-     * Are you sure that you want to go to "{x}"?
-     */
-    "confirmRemoteUrl": ParameterizedString<"x">;
     /**
      * Saved
      */
@@ -2502,6 +2546,10 @@ export interface Locale extends ILocale {
      */
     "deleteAllFilesConfirm": string;
     /**
+     * Deletion of all files queued
+     */
+    "deleteAllFilesQueued": string;
+    /**
      * Unfollow all followed users
      */
     "removeAllFollowing": string;
@@ -2525,6 +2573,14 @@ export interface Locale extends ILocale {
      * This account has been suspended due to breaking the server's terms of services or similar. Contact the administrator if you would like to know a more detailed reason. Please do not create a new account.
      */
     "yourAccountSuspendedDescription": string;
+    /**
+     * This is a system account
+     */
+    "systemAccountTitle": string;
+    /**
+     * This account is created and managed automatically by the system, and cannot be logged into.
+     */
+    "systemAccountDescription": string;
     /**
      * Invalid token
      */
@@ -2801,6 +2857,10 @@ export interface Locale extends ILocale {
      * {name} said something
      */
     "userSaysSomething": ParameterizedString<"name">;
+    /**
+     * post is hidden by a filter
+     */
+    "postFiltered": string;
     /**
      * Activate
      */
@@ -5333,6 +5393,10 @@ export interface Locale extends ILocale {
      */
     "sensitiveMediaRevealConfirm": string;
     /**
+     * Show warning when opening external URLs
+     */
+    "warnExternalUrl": string;
+    /**
      * Created lists
      */
     "createdLists": string;
@@ -5340,6 +5404,18 @@ export interface Locale extends ILocale {
      * Created antennas
      */
     "createdAntennas": string;
+    /**
+     * Break following relationships
+     */
+    "severAllFollowRelations": string;
+    /**
+     * Really break all follow relationships? This is irreversible! This will break {followingCount} following and {followersCount} follower relations on {instanceName}!
+     */
+    "severAllFollowRelationsConfirm": ParameterizedString<"followingCount" | "followersCount" | "instanceName">;
+    /**
+     * Severing all follow relations with {host} queued.
+     */
+    "severAllFollowRelationsQueued": ParameterizedString<"host">;
     /**
      * Sharkey Stelpolva Edition adds additional keyword syntax to the antenna settings.
      * That means, the special keyword `domain:example.com` will match all posts from `example.com`. This keyword can also be used in OR syntax.
@@ -10044,6 +10120,22 @@ export interface Locale extends ILocale {
          */
         "unsuspendRemoteInstance": string;
         /**
+         * Set remote instance as NSFW
+         */
+        "setRemoteInstanceNSFW": string;
+        /**
+         * Set remote instance as NSFW
+         */
+        "unsetRemoteInstanceNSFW": string;
+        /**
+         * Rejected reports from remote instance
+         */
+        "rejectRemoteInstanceReports": string;
+        /**
+         * Accepted reports from remote instance
+         */
+        "acceptRemoteInstanceReports": string;
+        /**
          * Moderation note updated for remote instance.
          */
         "updateRemoteInstanceNote": string;
@@ -10983,6 +11075,20 @@ export interface Locale extends ILocale {
          * Native
          */
         "native": string;
+    };
+    "_externalNavigationWarning": {
+        /**
+         * Navigate to an external site
+         */
+        "title": string;
+        /**
+         * Leave {host} and go to an external site
+         */
+        "description": ParameterizedString<"host">;
+        /**
+         * Trust this domain on this device in the future
+         */
+        "trustThisDomain": string;
     };
 }
 declare const locales: {

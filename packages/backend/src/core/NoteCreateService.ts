@@ -14,7 +14,8 @@ import { extractCustomEmojisFromMfm } from '@/misc/extract-custom-emojis-from-mf
 import { extractHashtags } from '@/misc/extract-hashtags.js';
 import type { IMentionedRemoteUsers } from '@/models/Note.js';
 import { MiNote } from '@/models/Note.js';
-import type { ChannelFollowingsRepository, ChannelsRepository, FollowingsRepository, InstancesRepository, MiFollowing, MutingsRepository, NotesRepository, NoteThreadMutingsRepository, UserListMembershipsRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
+import { LatestNote } from '@/models/LatestNote.js';
+import type { ChannelFollowingsRepository, ChannelsRepository, FollowingsRepository, InstancesRepository, LatestNotesRepository, MiFollowing, MutingsRepository, NotesRepository, NoteThreadMutingsRepository, UserListMembershipsRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
 import type { MiDriveFile } from '@/models/DriveFile.js';
 import type { MiApp } from '@/models/App.js';
 import { concat } from '@/misc/prelude/array.js';
@@ -62,6 +63,7 @@ import { isReply } from '@/misc/is-reply.js';
 import { trackPromise } from '@/misc/promise-tracker.js';
 import { isUserRelated } from '@/misc/is-user-related.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
+import { isQuote, isRenote } from '@/misc/is-renote.js';
 
 type NotificationType = 'reply' | 'renote' | 'quote' | 'mention';
 
@@ -170,6 +172,9 @@ export class NoteCreateService implements OnApplicationShutdown {
 		@Inject(DI.notesRepository)
 		private notesRepository: NotesRepository,
 
+		@Inject(DI.latestNotesRepository)
+		private latestNotesRepository: LatestNotesRepository,
+
 		@Inject(DI.mutingsRepository)
 		private mutingsRepository: MutingsRepository,
 
@@ -250,7 +255,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 		if (data.createdAt == null) data.createdAt = new Date();
 		if (data.visibility == null) data.visibility = 'public';
 		if (data.localOnly == null) data.localOnly = false;
-		if (data.channel != null) data.visibility = 'public';
+		if (data.channel != null && data.visibility !== 'specified') data.visibility = 'public';
 		if (data.channel != null) data.visibleUsers = [];
 		// if (data.channel != null) data.localOnly = true;
 
@@ -344,6 +349,18 @@ export class NoteCreateService implements OnApplicationShutdown {
 			}
 		} else {
 			data.text = null;
+		}
+
+		if (data.cw) {
+			if (data.cw.length > DB_MAX_NOTE_TEXT_LENGTH) {
+				data.cw = data.cw.slice(0, DB_MAX_NOTE_TEXT_LENGTH);
+			}
+			data.cw = data.cw.trim();
+			if (data.cw === '') {
+				data.cw = null;
+			}
+		} else {
+			data.cw = null;
 		}
 
 		let tags = data.apHashtags;
@@ -513,6 +530,8 @@ export class NoteCreateService implements OnApplicationShutdown {
 			} else {
 				await this.notesRepository.insert(insert);
 			}
+
+			await this.updateLatestNote(insert);
 
 			return insert;
 		} catch (e) {
@@ -1125,5 +1144,26 @@ export class NoteCreateService implements OnApplicationShutdown {
 	@bindThis
 	public onApplicationShutdown(signal?: string | undefined): void {
 		this.dispose();
+	}
+
+	private async updateLatestNote(note: MiNote) {
+		// Ignore DMs.
+		// Followers-only posts are *included*, as this table is used to back the "following" feed.
+		if (note.visibility === 'specified') return;
+
+		// Ignore pure renotes
+		if (isRenote(note) && !isQuote(note)) return;
+
+		// Make sure that this isn't an *older* post.
+		// We can get older posts through replies, lookups, etc.
+		const currentLatest = await this.latestNotesRepository.findOneBy({ userId: note.userId });
+		if (currentLatest != null && currentLatest.noteId >= note.id) return;
+
+		// Record this as the latest note for the given user
+		const latestNote = new LatestNote({
+			userId: note.userId,
+			noteId: note.id,
+		});
+		await this.latestNotesRepository.upsert(latestNote, ['userId']);
 	}
 }
