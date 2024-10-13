@@ -11,21 +11,8 @@ import { createEmptyNotification, createNotification } from '@/scripts/create-no
 import { swLang } from '@/scripts/lang.js';
 import * as swos from '@/scripts/operations.js';
 
-globalThis.addEventListener('install', ev => {
+globalThis.addEventListener('install', () => {
 	// ev.waitUntil(globalThis.skipWaiting());
-	ev.waitUntil(
-		caches.open('MkSwCache').then(cache => {
-			return cache.addAll([
-				'/',
-				'/vite',
-				'/assets',
-				'/static-assets',
-				'/emoji',
-				'/twemoji',
-				'/fluent-emoji'
-			]);
-		})
-	);
 });
 
 globalThis.addEventListener('activate', ev => {
@@ -62,23 +49,18 @@ globalThis.addEventListener('fetch', ev => {
 	}
 
 	if (!isHTMLRequest) return;
-    ev.respondWith(
-        caches.match(ev.request)
-            .then(cachedResponse => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return fetch(ev.request).catch(async () => {
-                    const html = await offlineContentHTML();
-                    return new Response(html, {
-                        status: 200,
-                        headers: {
-                            'content-type': 'text/html',
-                        },
-                    });
-                });
-            })
-    );
+	ev.respondWith(
+		fetch(ev.request)
+			.catch(async () => {
+				const html = await offlineContentHTML();
+				return new Response(html, {
+					status: 200,
+					headers: {
+						'content-type': 'text/html',
+					},
+				});
+			}),
+	);
 });
 
 globalThis.addEventListener('push', ev => {
