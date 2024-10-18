@@ -96,6 +96,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:isBlock="true"
 				/>
 				<a v-if="appearNote.renote != null" :class="$style.rn">RN:</a>
+				<div v-if="$i.policies.canUseTranslator && appearNote.text && isForeignLanguage" style="padding-top: 5px; color: var(--accent);">
+					<button v-if="!(translating || translation)" ref="translateButton" class="_button" @click.stop="translate()"><i class="ti ti-language-hiragana"></i>{{ i18n.ts.translate }}</button>
+					<button v-else class="_button" @click.stop="translation= null">{{ i18n.ts.close }}</button>
+				</div>
 				<div v-if="translating || translation" :class="$style.translation">
 					<MkLoading v-if="translating" mini/>
 					<div v-else-if="translation">
@@ -278,6 +282,8 @@ import { isEnabledUrlPreview } from '@/instance.js';
 import { getAppearNote } from '@/scripts/get-appear-note.js';
 import { type Keymap } from '@/scripts/hotkey.js';
 import { spacingNote } from '@/scripts/autospacing';
+import { miLocalStorage } from '@/local-storage.js';
+import detectLanguage from '@/scripts/detect-language.js';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
@@ -742,6 +748,12 @@ async function menuVersions(): Promise<void> {
 async function clip(): Promise<void> {
 	os.popupMenu(await getNoteClipMenu({ note: note.value, isDeleted }), clipButton.value).then(focus);
 }
+
+const isForeignLanguage: boolean = appearNote.value.text != null && (() => {
+	const targetLang = (miLocalStorage.getItem('lang') ?? navigator.language).slice(0, 2);
+	const postLang = detectLanguage(appearNote.value.text);
+	return postLang !== '' && postLang !== targetLang;
+})();
 
 function showRenoteMenu(): void {
 	if (!isMyRenote) return;
