@@ -755,6 +755,21 @@ const isForeignLanguage: boolean = appearNote.value.text != null && (() => {
 	return postLang !== '' && postLang !== targetLang;
 })();
 
+async function translate(): Promise<void> {
+	if (translation.value != null) return;
+	collapsed.value = false;
+	translating.value = true;
+	if (props.mock) {
+		return;
+	}
+	const res = await misskeyApi('notes/translate', {
+		noteId: appearNote.value.id,
+		targetLang: miLocalStorage.getItem('lang') ?? navigator.language,
+	});
+	translating.value = false;
+	translation.value = res;
+}
+
 function showRenoteMenu(): void {
 	if (!isMyRenote) return;
 	pleaseLogin(undefined, pleaseLoginContext.value);
