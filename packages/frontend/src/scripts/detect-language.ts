@@ -4,7 +4,7 @@
  */
 
 import { detect } from 'tinyld/heavy';
-import * as mfm from 'mfm-js';
+import * as mfm from '@transfem-org/sfm-js';
 
 export default function detectLanguage(text: string): string {
 	const nodes = mfm.parse(text);
