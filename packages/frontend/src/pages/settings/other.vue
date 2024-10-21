@@ -62,8 +62,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<template #label>{{ i18n.ts.experimentalFeatures }}</template>
 
 				<div class="_gaps_m">
-					<MkSwitch v-model="enableCondensedLineForAcct">
-						<template #label>Enable condensed line for acct</template>
+					<MkSwitch v-model="enableCondensedLine">
+						<template #label>Enable condensed line</template>
 					</MkSwitch>
 				</div>
 			</MkFolder>
@@ -92,11 +92,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkButton danger @click="updateRepliesAll(false)"><i class="ph-chat ph-bold ph-lg"></i> {{ i18n.ts.hideRepliesToOthersInTimelineAll }}</MkButton>
 		</div>
 	</FormSection>
-	<FormSection>
-		<div class="_gaps_s">
-			<MkButton link to="/make-private-many"><i class="ph-eye-slash ph-bold ph-lg"></i> {{ i18n.ts.makePrivate.bulkText }}</MkButton>
-		</div>
-	</FormSection>
 </div>
 </template>
 
@@ -114,13 +109,13 @@ import { defaultStore } from '@/store.js';
 import { signout, signinRequired } from '@/account.js';
 import { i18n } from '@/i18n.js';
 import { definePageMetadata } from '@/scripts/page-metadata.js';
-import { unisonReload } from '@/scripts/unison-reload.js';
+import { reloadAsk } from '@/scripts/reload-ask.js';
 import FormSection from '@/components/form/section.vue';
 
 const $i = signinRequired();
 
 const reportError = computed(defaultStore.makeGetterSetter('reportError'));
-const enableCondensedLineForAcct = computed(defaultStore.makeGetterSetter('enableCondensedLineForAcct'));
+const enableCondensedLine = computed(defaultStore.makeGetterSetter('enableCondensedLine'));
 const devMode = computed(defaultStore.makeGetterSetter('devMode'));
 const defaultWithReplies = computed(defaultStore.makeGetterSetter('defaultWithReplies'));
 
@@ -148,16 +143,6 @@ async function deleteAccount() {
 	await signout();
 }
 
-async function reloadAsk() {
-	const { canceled } = await os.confirm({
-		type: 'info',
-		text: i18n.ts.reloadToApplySetting,
-	});
-	if (canceled) return;
-
-	unisonReload();
-}
-
 async function updateRepliesAll(withReplies: boolean) {
 	const { canceled } = await os.confirm({
 		type: 'warning',
@@ -183,9 +168,9 @@ const exportData = () => {
 };
 
 watch([
-	enableCondensedLineForAcct,
+    enableCondensedLine,
 ], async () => {
-	await reloadAsk();
+    await reloadAsk();
 });
 
 const headerActions = computed(() => []);

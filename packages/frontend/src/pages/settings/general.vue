@@ -14,15 +14,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<MkLink url="https://crowdin.com/project/misskey">Crowdin</MkLink>
 				</template>
 			</I18n>
+			<br/>
+			<I18n :src="i18n.ts.i18nInfoSharkey" tag="span">
+				<template #link>
+					<!-- TODO: ADD LINK TO OUR I18N SERVICE -->
+					<MkLink url="https://crowdin.com/project/misskey">INSERT THINGY</MkLink>
+				</template>
+			</I18n>
 		</template>
 	</MkSelect>
-
-	<MkRadios v-model="hemisphere">
-		<template #label>{{ i18n.ts.hemisphere }}</template>
-		<option value="N">{{ i18n.ts._hemisphere.N }}</option>
-		<option value="S">{{ i18n.ts._hemisphere.S }}</option>
-		<template #caption>{{ i18n.ts._hemisphere.caption }}</template>
-	</MkRadios>
 
 	<MkRadios v-model="overridedDeviceKind">
 		<template #label>{{ i18n.ts.overridedDeviceKind }}</template>
@@ -170,6 +170,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<option value="horizontal"><i class="ti ti-carousel-horizontal"></i> {{ i18n.ts.horizontal }}</option>
 			</MkRadios>
 
+			<MkSwitch v-model="notificationClickable">{{ i18n.ts.allowClickingNotifications }}</MkSwitch>
+
 			<MkButton @click="testNotification">{{ i18n.ts._notification.checkNotificationBehavior }}</MkButton>
 		</div>
 	</FormSection>
@@ -179,35 +181,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<div class="_gaps_m">
 			<div class="_gaps_s">
-				<MkSelect v-model="defaultFont.fontFace">
-					<template #label>Default Font</template>
-					<template #caption>
-						Some Chinese font files are large, please wait for a while for the font to load after switching.
-						为了更好的体验，仅支持简体的峄山碑篆体和仅支持繁体的崇羲篆體会互相补充。
-					</template>
-					<option
-						v-for="item in defaultFont.fontList"
-						:key="item.id"
-						:value="item.id"
-					>
-						{{ item.name }}
-					</option>
-				</MkSelect>
-				<MkRadios v-if="defaultFont.availableTypes.length > 0" v-model="defaultFont.fontFaceType">
-					<template #label>Font Type</template>
-					<template #caption>
-						选择字体的子属性
-					</template>
-					<option
-						v-for="item in defaultFont.availableTypes"
-						:key="item.id"
-						:value="item.id"
-					>
-						{{ item.name }}
-					</option>
-				</MkRadios>
-			</div>
-			<div class="_gaps_s">
 				<MkSwitch v-model="reduceAnimation">{{ i18n.ts.reduceUiAnimation }}</MkSwitch>
 				<MkSwitch v-model="useBlurEffect">{{ i18n.ts.useBlurEffect }}</MkSwitch>
 				<MkSwitch v-model="useBlurEffectForModal">{{ i18n.ts.useBlurEffectForModal }}</MkSwitch>
@@ -216,12 +189,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkSwitch v-model="squareAvatars">{{ i18n.ts.squareAvatars }}</MkSwitch>
 				<MkSwitch v-model="showAvatarDecorations">{{ i18n.ts.showAvatarDecorations }}</MkSwitch>
 				<!-- <MkSwitch v-model="useSystemFont">{{ i18n.ts.useSystemFont }}</MkSwitch> -->
-				<MkSwitch v-model="disableDrawer">{{ i18n.ts.disableDrawer }}</MkSwitch>
+				<!-- <MkSwitch v-model="disableDrawer">{{ i18n.ts.disableDrawer }}</MkSwitch> -->
 				<MkSwitch v-model="forceShowAds">{{ i18n.ts.forceShowAds }}</MkSwitch>
 				<MkSwitch v-model="oneko">{{ i18n.ts.oneko }}</MkSwitch>
 				<MkSwitch v-model="enableSeasonalScreenEffect">{{ i18n.ts.seasonalScreenEffect }}</MkSwitch>
 				<MkSwitch v-model="useNativeUIForVideoAudioPlayer">{{ i18n.ts.useNativeUIForVideoAudioPlayer }}</MkSwitch>
 			</div>
+
+			<MkSelect v-model="menuStyle">
+				<template #label>{{ i18n.ts.menuStyle }}</template>
+				<option value="auto">{{ i18n.ts.auto }}</option>
+				<option value="popup">{{ i18n.ts.popup }}</option>
+				<option value="drawer">{{ i18n.ts.drawer }}</option>
+			</MkSelect>
+
 			<div>
 				<MkRadios v-model="emojiStyle">
 					<template #label>{{ i18n.ts.emojiStyle }}</template>
@@ -284,13 +265,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<option value="appWithShift">{{ i18n.ts._contextMenu.appWithShift }}</option>
 				<option value="native">{{ i18n.ts._contextMenu.native }}</option>
 			</MkSelect>
-			<MkSelect v-model="autoSpacingBehaviour">
-				<template #label>自动空格</template>
-				<option :value="null">{{ i18n.ts.disabled }}</option>
-				<option value="all">{{ i18n.ts.all }}</option>
-				<option value="special">智能</option>
-				<template #caption>在帖子正文的中文与英文之间自动加入缺失的空格。当选择“智能”时，一部分通常认为是混合词的（B超，X光等）会被保留</template>
-			</MkSelect>
 			<MkRange v-model="numberOfPageCache" :min="1" :max="10" :step="1" easing>
 				<template #label>{{ i18n.ts.numberOfPageCache }}</template>
 				<template #caption>{{ i18n.ts.numberOfPageCacheDescription }}</template>
@@ -349,6 +323,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #label>{{ i18n.ts.other }}</template>
 
 		<div class="_gaps">
+			<MkRadios v-model="hemisphere">
+				<template #label>{{ i18n.ts.hemisphere }}</template>
+				<option value="N">{{ i18n.ts._hemisphere.N }}</option>
+				<option value="S">{{ i18n.ts._hemisphere.S }}</option>
+				<template #caption>{{ i18n.ts._hemisphere.caption }}</template>
+			</MkRadios>
 			<MkFolder>
 				<template #label>{{ i18n.ts.additionalEmojiDictionary }}</template>
 				<div class="_buttons">
@@ -368,6 +348,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { computed, reactive, ref, watch } from 'vue';
 import * as Misskey from 'misskey-js';
+import { langs } from '@@/js/config.js';
 import MkSwitch from '@/components/MkSwitch.vue';
 import MkSelect from '@/components/MkSelect.vue';
 import MkRadios from '@/components/MkRadios.vue';
@@ -379,12 +360,11 @@ import FormSection from '@/components/form/section.vue';
 import FormLink from '@/components/form/link.vue';
 import MkLink from '@/components/MkLink.vue';
 import MkInfo from '@/components/MkInfo.vue';
-import { langs } from '@/config.js';
 import { searchEngineMap } from '@/scripts/search-engine-map.js';
 import { defaultStore } from '@/store.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/scripts/misskey-api.js';
-import { unisonReload } from '@/scripts/unison-reload.js';
+import { reloadAsk } from '@/scripts/reload-ask.js';
 import { i18n } from '@/i18n.js';
 import { definePageMetadata } from '@/scripts/page-metadata.js';
 import { miLocalStorage } from '@/local-storage.js';
@@ -399,8 +379,6 @@ const fontSizeNumber = ref(Number(miLocalStorage.getItem('fontSize') || 2));
 const fontSizeNumberOld = ref(fontSizeNumber.value);
 const cornerRadius = ref(miLocalStorage.getItem('cornerRadius'));
 const useSystemFont = ref(miLocalStorage.getItem('useSystemFont') != null);
-const defaultFont = getDefaultFontSettings();
-console.log(defaultFont);
 const dataSaver = ref(defaultStore.state.dataSaver);
 
 const fontSizePx = computed(() => fontSizeNumber.value + 14);
@@ -410,16 +388,6 @@ function saveFontSize() {
 	window.document.documentElement.classList.remove('f-' + fontSizeNumberOld.value);
 	window.document.documentElement.classList.add('f-' + fontSizeNumber.value);
 	fontSizeNumberOld.value = fontSizeNumber.value;
-}
-
-async function reloadAsk() {
-	const { canceled } = await os.confirm({
-		type: 'info',
-		text: i18n.ts.reloadToApplySetting,
-	});
-	if (canceled) return;
-
-	unisonReload();
 }
 
 const hemisphere = computed(defaultStore.makeGetterSetter('hemisphere'));
@@ -443,7 +411,7 @@ const advancedMfm = computed(defaultStore.makeGetterSetter('advancedMfm'));
 const showReactionsCount = computed(defaultStore.makeGetterSetter('showReactionsCount'));
 const enableQuickAddMfmFunction = computed(defaultStore.makeGetterSetter('enableQuickAddMfmFunction'));
 const emojiStyle = computed(defaultStore.makeGetterSetter('emojiStyle'));
-const disableDrawer = computed(defaultStore.makeGetterSetter('disableDrawer'));
+const menuStyle = computed(defaultStore.makeGetterSetter('menuStyle'));
 const disableShowingAnimatedImages = computed(defaultStore.makeGetterSetter('disableShowingAnimatedImages'));
 const forceShowAds = computed(defaultStore.makeGetterSetter('forceShowAds'));
 const oneko = computed(defaultStore.makeGetterSetter('oneko'));
@@ -466,6 +434,7 @@ const showAvatarDecorations = computed(defaultStore.makeGetterSetter('showAvatar
 const mediaListWithOneImageAppearance = computed(defaultStore.makeGetterSetter('mediaListWithOneImageAppearance'));
 const notificationPosition = computed(defaultStore.makeGetterSetter('notificationPosition'));
 const notificationStackAxis = computed(defaultStore.makeGetterSetter('notificationStackAxis'));
+const notificationClickable = computed(defaultStore.makeGetterSetter('notificationClickable'));
 const keepScreenOn = computed(defaultStore.makeGetterSetter('keepScreenOn'));
 const disableStreamingTimeline = computed(defaultStore.makeGetterSetter('disableStreamingTimeline'));
 const useGroupedNotifications = computed(defaultStore.makeGetterSetter('useGroupedNotifications'));
@@ -485,7 +454,6 @@ const alwaysConfirmFollow = computed(defaultStore.makeGetterSetter('alwaysConfir
 const confirmWhenRevealingSensitiveMedia = computed(defaultStore.makeGetterSetter('confirmWhenRevealingSensitiveMedia'));
 const contextMenu = computed(defaultStore.makeGetterSetter('contextMenu'));
 const warnExternalUrl = computed(defaultStore.makeGetterSetter('warnExternalUrl'));
-const autoSpacingBehaviour = computed(defaultStore.makeGetterSetter('chineseAutospacing'));
 
 watch(lang, () => {
 	miLocalStorage.setItem('lang', lang.value as string);
@@ -511,7 +479,7 @@ watch(useSystemFont, () => {
 
 watch(noteDesign, async (newval) => {
 	if (noteDesign.value === newval) {
-		await reloadAsk();
+		await reloadAsk({ reason: i18n.ts.reloadToApplySetting, unison: true });
 	}
 });
 
@@ -540,7 +508,7 @@ watch([
 	contextMenu,
 	warnExternalUrl,
 ], async () => {
-	await reloadAsk();
+	await reloadAsk({ reason: i18n.ts.reloadToApplySetting, unison: true });
 });
 
 const emojiIndexLangs = ['en-US', 'ja-JP', 'ja-JP_hira'] as const;
