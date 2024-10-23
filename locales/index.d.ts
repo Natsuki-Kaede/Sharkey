@@ -503,10 +503,6 @@ export interface Locale extends ILocale {
      */
     "pinnedNote": string;
     /**
-     * Pinned
-     */
-    "pinnedOnly": string;
-    /**
      * ピン留め
      */
     "pinned": string;
@@ -1050,10 +1046,6 @@ export interface Locale extends ILocale {
      * 連合中
      */
     "federating": string;
-    /**
-     * Blocking you
-     */
-    "blockingYou": string;
     /**
      * ブロック中
      */
@@ -4376,6 +4368,10 @@ export interface Locale extends ILocale {
      */
     "enableChartsForFederatedInstances": string;
     /**
+     * リモートサーバーの情報を取得
+     */
+    "enableStatsForFederatedInstances": string;
+    /**
      * ノートのアクションにクリップを追加
      */
     "showClipButtonInNoteFooter": string;
@@ -4944,10 +4940,6 @@ export interface Locale extends ILocale {
      */
     "useGroupedNotifications": string;
     /**
-     * ポップアップ通知のクリックを許可する
-     */
-    "allowClickingNotifications": string;
-    /**
      * メールアドレスの確認中に問題が発生しました。リンクの有効期限が切れている可能性があります。
      */
     "signupPendingError": string;
@@ -5116,10 +5108,6 @@ export interface Locale extends ILocale {
      */
     "sensitiveMediaRevealConfirm": string;
     /**
-     * 外部URLを開く際に警告を表示する
-     */
-    "warnExternalUrl": string;
-    /**
      * 作成したリスト
      */
     "createdLists": string;
@@ -5183,6 +5171,26 @@ export interface Locale extends ILocale {
      * 対象
      */
     "target": string;
+    /**
+     * CAPTCHAのテストを目的とした機能です。<strong>本番環境で使用しないでください。</strong>
+     */
+    "testCaptchaWarning": string;
+    /**
+     * 禁止ワード（ユーザーの名前）
+     */
+    "prohibitedWordsForNameOfUser": string;
+    /**
+     * このリストに含まれる文字列がユーザーの名前に含まれる場合、ユーザーの名前の変更を拒否します。モデレーター権限を持つユーザーはこの制限の影響を受けません。
+     */
+    "prohibitedWordsForNameOfUserDescription": string;
+    /**
+     * 変更しようとした名前に禁止された文字列が含まれています
+     */
+    "yourNameContainsProhibitedWords": string;
+    /**
+     * 名前に禁止されている文字列が含まれています。この名前を使用したい場合は、サーバー管理者にお問い合わせください。
+     */
+    "yourNameContainsProhibitedWordsDescription": string;
     "_abuseUserReport": {
         /**
          * 転送
@@ -5721,6 +5729,10 @@ export interface Locale extends ILocale {
          * Specify the URL of a web page that contains a contact form or the instance operators' contact information.
          */
         "inquiryUrlDescription": string;
+        /**
+         * 一定期間モデレーターのアクティビティが検出されなかった場合、スパム防止のためこの設定は自動でオフになります。
+         */
+        "thisSettingWillAutomaticallyOffWhenModeratorsInactive": string;
         /**
          * Logo URL
          */
@@ -7774,10 +7786,6 @@ export interface Locale extends ILocale {
              */
             "inputBorder": string;
             /**
-             * リスト項目の背景 (ホバー)
-             */
-            "listItemHoverBg": string;
-            /**
              * ドライブフォルダーの背景
              */
             "driveFolderBg": string;
@@ -9745,6 +9753,14 @@ export interface Locale extends ILocale {
              * ユーザーが作成されたとき
              */
             "userCreated": string;
+            /**
+             * モデレーターが一定期間非アクティブになったとき
+             */
+            "inactiveModeratorsWarning": string;
+            /**
+             * モデレーターが一定期間非アクティブだったため、システムにより招待制へと変更されたとき
+             */
+            "inactiveModeratorsInvitationOnlyChanged": string;
         };
         /**
          * Webhookを削除しますか？
@@ -10936,6 +10952,18 @@ export interface Locale extends ILocale {
      * Show non-public
      */
     "showNonPublicNotes": string;
+    /**
+     * Allow clicking on pop-up notifications
+     */
+    "allowClickingNotifications": string;
+    /**
+     * Pinned
+     */
+    "pinnedOnly": string;
+    /**
+     * Blocking you
+     */
+    "blockingYou": string;
     "_mfm": {
         /**
          * This is not a widespread feature, it may not display properly on most other fedi software, including other Misskey forks
@@ -11307,6 +11335,10 @@ export interface Locale extends ILocale {
         "trustThisDomain": string;
     };
     /**
+     * Remote followers may have incomplete or outdated activity
+     */
+    "remoteFollowersWarning": string;
+    /**
      * Sharkey Stelpolva Edition 为天线的设置添加了额外的关键词语法。
      * 具体而言， `domain:example.com` 这个特殊关键词会匹配所有来自 `example.com` 的帖子。这个关键词同样能使用在 OR 语法中。
      * 特别地，你必须用 `domain:here` 来匹配本实例的帖子。
@@ -11375,6 +11407,100 @@ export interface Locale extends ILocale {
          */
         "bulkText": string;
     };
+    "_stpvPlus": {
+        /**
+         * Stelpolva Plus 设置
+         */
+        "title": string;
+        /**
+         * 这些设置是 Sharkey Stelpolva 添加的设置，是普通Sharkey实例没有的。
+         */
+        "info": string;
+        "disableAllReactions": {
+            /**
+             * 前端禁用回应表情功能
+             */
+            "label": string;
+            /**
+             * 该设置只是前端更改，别人仍然可以对你的帖子做出回应。只对Sharkey风格Note生效
+             */
+            "caption": string;
+        };
+        "defaultFont": {
+            /**
+             * 默认字体
+             */
+            "label": string;
+            /**
+             * 一些中文字体文件较大，请切换字体后等待一会儿字体文件的加载。为了更好的体验，仅支持简体的峄山碑篆体和仅支持繁体的崇羲篆體会互相补充。
+             */
+            "caption": string;
+        };
+        "fontType": {
+            /**
+             * 字体属性
+             */
+            "label": string;
+            /**
+             * 选择字体的子属性
+             */
+            "caption": string;
+        };
+        "softMutedUsers": {
+            /**
+             * 在时间线上折叠的用户 ID
+             */
+            "label": string;
+            /**
+             * 填写从 Raw 上可以看到的用户 ID，一行一个。最多不能超过100个，超出的部分会被自动删除。
+             */
+            "caption": string;
+        };
+        "softMutedNotes": {
+            /**
+             * 在时间线上折叠的帖子 ID
+             */
+            "label": string;
+            /**
+             * 填写从 URL 上可以看到的帖子 ID，一行一个。最多不能超过100个，超出的部分会被自动删除。
+             */
+            "caption": string;
+        };
+        "softMutedDomains": {
+            /**
+             * Domain names soft muted on the timeline
+             */
+            "label": string;
+            /**
+             * Fill in the domain names, one per line. At most 100 domains, and any exceeded will be deleted.
+             */
+            "caption": string;
+        };
+    };
+    /**
+     * 在时间线上折叠该用户的帖子
+     */
+    "stpvMuteUser": string;
+    /**
+     * 在时间线上恢复显示该用户的帖子
+     */
+    "stpvUnmuteUser": string;
+    /**
+     * 以后在时间线上折叠
+     */
+    "stpvMuteNote": string;
+    /**
+     * 以后在时间线上恢复显示
+     */
+    "stpvUnmuteNote": string;
+    /**
+     * 在时间线上折叠来自此实例的帖子
+     */
+    "stpvMuteInstance": string;
+    /**
+     * 来自 {domain} 的 {name} 说了什么
+     */
+    "stpvDomainUserSaysSomething": ParameterizedString<"domain" | "name">;
 }
 declare const locales: {
     [lang: string]: Locale;

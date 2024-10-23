@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div
-	v-if="!hardMuted && muted === false"
+	v-if="!hardMuted && (muted === false || softMuteExpanded)"
 	v-show="!isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
@@ -177,12 +177,22 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</article>
 </div>
-<div v-else-if="!hardMuted" :class="$style.muted" @click="muted = false">
+<div v-else-if="!hardMuted && !softMuteExpanded" :class="$style.muted" @click="softMuteExpanded = true">
 	<I18n v-if="muted === 'sensitiveMute'" :src="i18n.ts.userSaysSomethingSensitive" tag="small">
 		<template #name>
 			<MkA v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
 				<MkUserName :user="appearNote.user"/>
 			</MkA>
+		</template>
+	</I18n>
+	<I18n v-else-if="typeof muted === 'string' && muted.startsWith('mutedByDomain:')" :src="i18n.ts.stpvDomainUserSaysSomething" tag="small">
+		<template #name>
+			<MkA v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
+				<MkUserName :user="appearNote.user"/>
+			</MkA>
+		</template>
+		<template #domain>
+			<MkA :to="`/instance-info/${muted.split('mutedByDomain:')[1]}`" behavior="window">{{ muted.split('mutedByDomain:')[1] }}</MkA>
 		</template>
 	</I18n>
 	<I18n v-else :src="i18n.ts.userSaysSomething" tag="small">
@@ -209,6 +219,7 @@ import { isPureRenote } from 'misskey-js/note.js';
 import { isLink } from '@@/js/is-link.js';
 import { shouldCollapsed } from '@@/js/collapsed.js';
 import { host } from '@@/js/config.js';
+import SkInstanceTicker from './SkInstanceTicker.vue';
 import type { MenuItem } from '@/types/menu.js';
 import SkNoteSub from '@/components/SkNoteSub.vue';
 import SkNoteHeader from '@/components/SkNoteHeader.vue';
@@ -252,6 +263,7 @@ import { getAppearNote } from '@/scripts/get-appear-note.js';
 import { spacingNote } from '@/scripts/autospacing';
 import { miLocalStorage } from '@/local-storage.js';
 import detectLanguage from '@/scripts/detect-language.js';
+import { checkStpvSoftMute } from '@/scripts/check-stpv-soft-mute';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
@@ -324,7 +336,10 @@ const isLong = shouldCollapsed(appearNote.value, urls.value ?? []);
 const collapsed = ref(defaultStore.state.expandLongNote && appearNote.value.cw == null && isLong ? false : appearNote.value.cw == null && isLong);
 const isDeleted = ref(false);
 const renoted = ref(false);
-const muted = ref(checkMute(appearNote.value, $i?.mutedWords));
+
+const muted = computed(() => checkStpvSoftMute(appearNote) || checkMute(appearNote.value, $i?.mutedWords));
+const softMuteExpanded = ref(false);
+
 const hardMuted = ref(props.withHardMute && checkMute(appearNote.value, $i?.hardMutedWords, true));
 const translation = ref<Misskey.entities.NotesTranslateResponse | null>(null);
 const translating = ref(false);
