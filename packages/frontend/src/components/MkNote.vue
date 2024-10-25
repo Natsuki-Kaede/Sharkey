@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<MkA v-user-preview="appearNote.reply.userId" :class="$style.name" :to="userPage(appearNote.reply.user)">
 			<MkAcct :user="appearNote.reply.user"/>
 		</MkA>:
-		<Mfm :text="getNoteSummary(appearNote.reply)" :plain="true" :nowrap="true" :author="appearNote.reply.user" :nyaize="'respect'" :class="$style.collapsedInReplyToText" @click="inReplyToCollapsed = false"/>
+		<Mfm :text="getNoteSummary(appearNote.reply)" :stpvInline="true" :nowrap="true" :author="appearNote.reply.user" :nyaize="'respect'" :class="$style.collapsedInReplyToText" @click="inReplyToCollapsed = false"/>
 	</div>
 	<MkNoteSub v-if="appearNote.reply && !renoteCollapsed && !inReplyToCollapsed" :note="appearNote.reply" :class="$style.replyTo"/>
 	<div v-if="pinned" :class="$style.tip"><i class="ti ti-pin"></i> {{ i18n.ts.pinnedNote }}</div>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<div v-if="renoteCollapsed" :class="$style.collapsedRenoteTarget">
 		<MkAvatar :class="$style.collapsedRenoteTargetAvatar" :user="appearNote.user" link preview/>
-		<Mfm :text="getNoteSummary(appearNote)" :isBlock="true" :plain="true" :nowrap="true" :author="appearNote.user" :nyaize="'respect'" :class="$style.collapsedRenoteTargetText" @click="renoteCollapsed = false; inReplyToCollapsed = false"/>
+		<Mfm :text="getNoteSummary(appearNote)" :isBlock="true" :stpvInline="true" :nowrap="true" :author="appearNote.user" :nyaize="'respect'" :class="$style.collapsedRenoteTargetText" @click="renoteCollapsed = false; inReplyToCollapsed = false"/>
 	</div>
 	<article v-else :class="$style.article" @contextmenu.stop="onContextmenu">
 		<div v-if="appearNote.channel" :class="$style.colorBar" :style="{ background: appearNote.channel.color }"></div>
@@ -250,6 +250,7 @@ import { focusPrev, focusNext } from '@/scripts/focus.js';
 import { getAppearNote } from '@/scripts/get-appear-note.js';
 import { miLocalStorage } from '@/local-storage.js';
 import detectLanguage from '@/scripts/detect-language.js';
+import { checkStpvSoftMute } from '@/scripts/check-stpv-soft-mute';
 
 const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
@@ -322,7 +323,9 @@ const isLong = shouldCollapsed(appearNote.value, urls.value ?? []);
 const collapsed = ref(defaultStore.state.expandLongNote && appearNote.value.cw == null && isLong ? false : appearNote.value.cw == null && isLong);
 const isDeleted = ref(false);
 const renoted = ref(false);
-const muted = ref(checkMute(appearNote.value, $i?.mutedWords));
+
+const muted = ref(checkStpvSoftMute(appearNote) || checkMute(appearNote.value, $i?.mutedWords));
+
 const hardMuted = ref(props.withHardMute && checkMute(appearNote.value, $i?.hardMutedWords, true));
 const translation = ref<Misskey.entities.NotesTranslateResponse | null>(null);
 const translating = ref(false);
