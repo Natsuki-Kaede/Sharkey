@@ -590,6 +590,10 @@ const routes: RouteDef[] = [{
 	component: page(() => import('@/pages/make-private-many.vue')),
 	loginRequired: true,
 }, {
+	path: '/stpv/reactions-stat',
+	component: page(() => import('@/pages/stpv/reactions-stat.vue')),
+	loginRequired: true,
+}, {
 	path: '/timeline',
 	component: page(() => import('@/pages/timeline.vue')),
 }, {

@@ -19,4 +19,8 @@ export const stpvDefaultStoreExtension = {
 		where: 'account',
 		default: [] as string[],
 	},
+	stpvHideReplyAcct: {
+		where: 'device',
+		default: true as boolean,
+	},
 } as const;

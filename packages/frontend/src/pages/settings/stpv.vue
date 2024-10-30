@@ -47,6 +47,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #caption>{{ i18n.ts._stpvPlus.disableAllReactions.caption }}</template>
 				</MkSwitch>
 			</div>
+			<div v-show="collapsedInReplyTo" class="_gaps_s">
+				<MkSwitch v-model="stpvHideReplyAcct">
+					{{ i18n.ts._stpvPlus.hideReplyAcct.label }}
+					<template #caption>{{ i18n.ts._stpvPlus.hideReplyAcct.caption }}</template>
+				</MkSwitch>
+			</div>
 		</div>
 	</FormSection>
 
@@ -95,6 +101,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<div class="_gaps_s">
 				<MkButton link to="/make-private-many"><i class="ph-eye-slash ph-bold ph-lg"></i> {{ i18n.ts.makePrivate.bulkText }}</MkButton>
 			</div>
+			<div class="_gaps_s">
+				<MkButton link :to="`/stpv/reactions-stat`"><i class="ph-chart-bar ph-bold ph-lg"></i> {{ i18n.ts.stpvReactionsStat }} </MkButton>
+			</div>
 		</div>
 	</FormSection>
 </div>
@@ -122,14 +131,17 @@ import MkInfo from '@/components/MkInfo.vue';
 import { getDefaultFontSettings } from '@/scripts/font-settings';
 import MkTextarea from '@/components/MkTextarea.vue';
 
-// Uncomment the next line when signInRequired settings added
-// const $i = signinRequired();
+const $i = signinRequired();
+const meId = $i.id;
 
 const defaultFont = getDefaultFontSettings();
 console.log(defaultFont);
 
+const collapsedInReplyTo = defaultStore.reactiveState.collapseNotesRepliedTo;
+
 const autoSpacingBehaviour = computed(defaultStore.makeGetterSetter('chineseAutospacing'));
 const stpvDisableAllReactions = computed(defaultStore.makeGetterSetter('stpvDisableAllReactions'));
+const stpvHideReplyAcct = computed(defaultStore.makeGetterSetter('stpvHideReplyAcct'));
 
 const stpvMutedUsersList = computed({
 	get: () => defaultStore.reactiveState.stpvClientMutedUsers.value.filter(x => x).join('\n'),

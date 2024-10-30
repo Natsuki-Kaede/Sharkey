@@ -352,6 +352,7 @@ import * as ep___roles_list from './endpoints/roles/list.js';
 import * as ep___roles_show from './endpoints/roles/show.js';
 import * as ep___roles_users from './endpoints/roles/users.js';
 import * as ep___roles_notes from './endpoints/roles/notes.js';
+import * as ep___stpv_reactionsStat from './endpoints/stpv/reactions-stat.js';
 import * as ep___requestResetPassword from './endpoints/request-reset-password.js';
 import * as ep___resetDb from './endpoints/reset-db.js';
 import * as ep___resetPassword from './endpoints/reset-password.js';
@@ -757,6 +758,7 @@ const $roles_list: Provider = { provide: 'ep:roles/list', useClass: ep___roles_l
 const $roles_show: Provider = { provide: 'ep:roles/show', useClass: ep___roles_show.default };
 const $roles_users: Provider = { provide: 'ep:roles/users', useClass: ep___roles_users.default };
 const $roles_notes: Provider = { provide: 'ep:roles/notes', useClass: ep___roles_notes.default };
+const $stpv_reactionsStat: Provider = { provide: 'ep:stpv/reactions-stat', useClass: ep___stpv_reactionsStat.default };
 const $requestResetPassword: Provider = { provide: 'ep:request-reset-password', useClass: ep___requestResetPassword.default };
 const $resetDb: Provider = { provide: 'ep:reset-db', useClass: ep___resetDb.default };
 const $resetPassword: Provider = { provide: 'ep:reset-password', useClass: ep___resetPassword.default };
@@ -1166,6 +1168,7 @@ const $reversi_verify: Provider = { provide: 'ep:reversi/verify', useClass: ep__
 		$roles_show,
 		$roles_users,
 		$roles_notes,
+		$stpv_reactionsStat,
 		$requestResetPassword,
 		$resetDb,
 		$resetPassword,
@@ -1568,6 +1571,7 @@ const $reversi_verify: Provider = { provide: 'ep:reversi/verify', useClass: ep__
 		$roles_show,
 		$roles_users,
 		$roles_notes,
+		$stpv_reactionsStat,
 		$requestResetPassword,
 		$resetDb,
 		$resetPassword,

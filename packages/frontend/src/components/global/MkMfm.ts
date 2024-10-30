@@ -443,11 +443,11 @@ export default function (props: MfmProps, { emit }: { emit: SetupContext<MfmEven
 
 			case 'mention': {
 				const mentionHost = token.props.host == null && props.author && props.author.host != null ? props.author.host : token.props.host;
-				if (props.stpvInline) { return [h('i', {}, [`@${token.props.username}`, mentionHost ? `@${mentionHost}` : ''])]; }
 				return [h('bdi', h(MkMention, {
 					key: Math.random(),
 					host: mentionHost ?? host,
 					username: token.props.username,
+					noNavigate: props.stpvInline,
 				}))];
 			}
 

@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<div v-if="appearNote.reply && inReplyToCollapsed && !renoteCollapsed" :class="$style.collapsedInReplyTo">
 		<div :class="$style.collapsedInReplyToLine"></div>
 		<MkAvatar :class="$style.collapsedInReplyToAvatar" :user="appearNote.reply.user" link preview/>
-		<MkA v-user-preview="appearNote.reply.userId" :class="$style.name" :to="userPage(appearNote.reply.user)">
+		<MkA v-if="!stpvHideReplyAcct" v-user-preview="appearNote.reply.userId" :class="$style.name" :to="userPage(appearNote.reply.user)">
 			<MkAcct :user="appearNote.reply.user"/>
 		</MkA>:
 		<Mfm :text="getNoteSummary(appearNote.reply)" :stpvInline="true" :nowrap="true" :author="appearNote.reply.user" :nyaize="'respect'" :class="$style.collapsedInReplyToText" @click="inReplyToCollapsed = false"/>
@@ -362,6 +362,7 @@ const pleaseLoginContext = computed<OpenOnRemoteOptions>(() => ({
 }));
 
 const stpvDisableReactions = defaultStore.reactiveState.stpvDisableAllReactions;
+const stpvHideReplyAcct = defaultStore.reactiveState.stpvHideReplyAcct;
 
 /* Overload FunctionにLintが対応していないのでコメントアウト
 function checkMute(noteToCheck: Misskey.entities.Note, mutedWords: Array<string | string[]> | undefined | null, checkOnly: true): boolean;

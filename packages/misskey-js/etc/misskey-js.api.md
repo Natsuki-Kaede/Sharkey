@@ -1743,6 +1743,8 @@ declare namespace entities {
         RolesUsersResponse,
         RolesNotesRequest,
         RolesNotesResponse,
+        StpvReactionsStatRequest,
+        StpvReactionsStatResponse,
         RequestResetPasswordRequest,
         ResetPasswordRequest,
         ServerInfoResponse,
@@ -3200,6 +3202,12 @@ type SponsorsRequest = operations['sponsors']['requestBody']['content']['applica
 
 // @public (undocumented)
 type StatsResponse = operations['stats']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type StpvReactionsStatRequest = operations['stpv___reactions-stat']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type StpvReactionsStatResponse = operations['stpv___reactions-stat']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
 export class Stream extends EventEmitter<StreamEvents> implements IStream {
