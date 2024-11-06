@@ -65,10 +65,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</div>
 	<MkInfo v-if="hasNotSpecifiedMentions" warn :class="$style.hasNotSpecifiedMentions">{{ i18n.ts.notSpecifiedMentionWarning }} - <button class="_textButton" @click="addMissingMention()">{{ i18n.ts.add }}</button></MkInfo>
-	<textarea v-show="useCw" ref="cwInputEl" v-model="cw" :class="$style.cw" :placeholder="i18n.ts.annotation" @keydown="onKeydown"/>
+	<div v-show="useCw" :class="$style.cwFrame">
+		<textarea ref="cwInputEl" v-model="cw" :class="$style.cw" :placeholder="i18n.ts.annotation" @keydown="onKeydown"/>
+		<div v-if="maxCwLength - cwLength < 100" :class="['_acrylic', $style.textCount, { [$style.textOver]: cwLength > maxCwLength }]">{{ maxCwLength - cwLength }}</div>
+	</div>
 	<div :class="[$style.textOuter, { [$style.withCw]: useCw }]">
 		<div v-if="channel" :class="$style.colorBar" :style="{ background: channel.color }"></div>
+		<textarea v-if="stpvAdvancedPostForm" v-model="prefixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFprefix" dir="auto" @keydown="onKeydown"/>
 		<textarea ref="textareaEl" v-model="text" :class="[$style.text]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="placeholder" data-cy-post-form-text dir="auto" @keydown="onKeydown" @paste="onPaste" @compositionupdate="onCompositionUpdate" @compositionend="onCompositionEnd"/>
+		<textarea v-if="stpvAdvancedPostForm" v-model="suffixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFsuffix" dir="auto" @keydown="onKeydown"/>
 		<div v-if="maxTextLength - textLength < 100" :class="['_acrylic', $style.textCount, { [$style.textOver]: textLength > maxTextLength }]">{{ maxTextLength - textLength }}</div>
 	</div>
 	<input v-show="withHashtags" ref="hashtagsInputEl" v-model="hashtags" :class="$style.hashtags" :placeholder="i18n.ts.hashtags" list="hashtags">
@@ -173,6 +178,8 @@ const emit = defineEmits<{
 	(ev: 'fileChangeSensitive', fileId: string, to: boolean): void;
 }>();
 
+const stpvAdvancedPostForm = computed(() => defaultStore.reactiveState.stpvAdvancedPostForm.value && !props.editId);
+
 const textareaEl = shallowRef<HTMLTextAreaElement | null>(null);
 const cwInputEl = shallowRef<HTMLTextAreaElement | null>(null);
 const hashtagsInputEl = shallowRef<HTMLInputElement | null>(null);
@@ -181,6 +188,8 @@ const visibilityButton = shallowRef<HTMLElement>();
 const posting = ref(false);
 const posted = ref(false);
 const text = ref(props.initialText ?? '');
+const prefixText = ref(defaultStore.state.stpvPFDefaultPrefix);
+const suffixText = ref(defaultStore.state.stpvPFDefaultSuffix);
 const files = ref(props.initialFiles ?? []);
 const poll = ref<PollEditorModelValue | null>(null);
 const useCw = ref<boolean>(!!props.initialCw);
@@ -248,12 +257,15 @@ const submitText = computed((): string => {
 });
 
 const textLength = computed((): number => {
-	return (text.value + imeText.value).length + (cw.value?.length ?? 0);
+	return (text.value + imeText.value).length;
 });
 
 const maxTextLength = computed((): number => {
 	return instance ? instance.maxNoteTextLength : 1000;
 });
+
+const cwLength = computed(() => cw.value?.length ?? 0);
+const maxCwLength = computed(() => instance.maxCwLength);
 
 const canPost = computed((): boolean => {
 	return !props.mock && !posting.value && !posted.value &&
@@ -265,6 +277,7 @@ const canPost = computed((): boolean => {
 			quoteId.value != null
 		) &&
 		(textLength.value <= maxTextLength.value) &&
+		(cwLength.value <= maxCwLength.value) &&
 		(!poll.value || poll.value.choices.length >= 2);
 });
 
@@ -859,6 +872,12 @@ async function post(ev?: MouseEvent) {
 		}
 	}
 
+	if (stpvAdvancedPostForm.value) {
+		postData.text = `${prefixText.value}${postData.text}${suffixText.value}`;
+		defaultStore.set('stpvPFDefaultPrefix', prefixText.value);
+		defaultStore.set('stpvPFDefaultSuffix', suffixText.value);
+	}
+
 	// plugin
 	if (notePostInterruptors.length > 0) {
 		for (const interruptor of notePostInterruptors) {
@@ -1269,14 +1288,6 @@ defineExpose({
 	background-size: auto auto;
 }
 
-html[data-color-scheme=dark] .preview {
-	background-image: repeating-linear-gradient(135deg, transparent, transparent 5px, #0004 5px, #0004 10px);
-}
-
-html[data-color-scheme=light] .preview {
-	background-image: repeating-linear-gradient(135deg, transparent, transparent 5px, #00000005 5px, #00000005 10px);
-}
-
 .targetNote {
 	padding: 0 20px 16px 20px;
 }
@@ -1310,6 +1321,7 @@ html[data-color-scheme=light] .preview {
 	margin: 0 20px 16px 20px;
 }
 
+.presuftext,
 .cw,
 .hashtags,
 .text {
@@ -1334,12 +1346,18 @@ html[data-color-scheme=light] .preview {
 	}
 }
 
-.cw {
+.presuftext {
+	min-height: 1rem;
+	height: 1rem;
+}
+
+.cwFrame {
 	z-index: 1;
 	padding-bottom: 8px;
 	border-bottom: solid 0.5px var(--divider);
-	resize: vertical;
-	min-height: 2rem;
+
+	width: 100%;
+	position: relative;
 }
 
 .hashtags {

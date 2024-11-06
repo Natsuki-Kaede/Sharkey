@@ -43,6 +43,9 @@ _stpvPlus:
   hideReplyAcct:
     label: Hide collapsed replied note acct
     caption: Don't show @username@domain
+  advancedPostForm:
+    label: Advanced post form
+    caption: Allows adding prefixes, suffixes, etc.
 stpvMuteUser: "Soft mute notes in timeline"
 stpvUnmuteUser: "Don't soft mute notes in timeline"
 stpvMuteNote: "Soft mute this note later"
@@ -51,3 +54,5 @@ stpvMuteInstance: "Soft mute notes from this instance in timeline"
 stpvDomainUserSaysSomething: "{name} from {domain} said something"
 stpvReactionsStat: "Emoji Reactions Stats"
 stpvReactionsStatDescription: "Shows the the first 100 of emojis mostly reacted"
+stpvPFprefix: "prefix..."
+stpvPFsuffix: "...suffix"

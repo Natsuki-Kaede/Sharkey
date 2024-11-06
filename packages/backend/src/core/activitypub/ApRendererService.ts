@@ -426,7 +426,7 @@ export class ApRendererService {
 
 		const summary = note.cw === '' ? String.fromCharCode(0x200B) : note.cw;
 
-		const { content, noMisskeyContent } = this.apMfmService.getNoteHtml(note, apAppend);
+		const { content } = this.apMfmService.getNoteHtml(note, apAppend);
 
 		const emojis = await this.getEmojis(note.emojis);
 		const apemojis = emojis.filter(emoji => !emoji.localOnly).map(emoji => this.renderEmoji(emoji));
@@ -456,13 +456,11 @@ export class ApRendererService {
 			attributedTo,
 			summary: summary ?? undefined,
 			content: content ?? undefined,
-			...(noMisskeyContent ? {} : {
-				_misskey_content: text,
-				source: {
-					content: text,
-					mediaType: 'text/x.misskeymarkdown',
-				},
-			}),
+			_misskey_content: text,
+			source: {
+				content: text,
+				mediaType: 'text/x.misskeymarkdown',
+			},
 			_misskey_quote: quote,
 			quoteUrl: quote,
 			quoteUri: quote,
@@ -719,7 +717,7 @@ export class ApRendererService {
 
 		const summary = note.cw === '' ? String.fromCharCode(0x200B) : note.cw;
 
-		const { content, noMisskeyContent } = this.apMfmService.getNoteHtml(note, apAppend);
+		const { content } = this.apMfmService.getNoteHtml(note, apAppend);
 
 		const emojis = await this.getEmojis(note.emojis);
 		const apemojis = emojis.filter(emoji => !emoji.localOnly).map(emoji => this.renderEmoji(emoji));
@@ -750,13 +748,11 @@ export class ApRendererService {
 			summary: summary ?? undefined,
 			content: content ?? undefined,
 			updated: note.updatedAt?.toISOString(),
-			...(noMisskeyContent ? {} : {
-				_misskey_content: text,
-				source: {
-					content: text,
-					mediaType: 'text/x.misskeymarkdown',
-				},
-			}),
+			_misskey_content: text,
+			source: {
+				content: text,
+				mediaType: 'text/x.misskeymarkdown',
+			},
 			_misskey_quote: quote,
 			quoteUrl: quote,
 			quoteUri: quote,

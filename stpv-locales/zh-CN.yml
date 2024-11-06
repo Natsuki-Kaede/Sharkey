@@ -40,6 +40,9 @@ _stpvPlus:
   hideReplyAcct:
     label: 隐藏被折叠回复的acct
     caption: 不显示 @username@domain
+  advancedPostForm:
+    label: 高级发帖框模式
+    caption: 允许添加前缀和小尾巴等
 stpvMuteUser: "在时间线上折叠该用户的帖子"
 stpvUnmuteUser: "在时间线上恢复显示该用户的帖子"
 stpvMuteNote: "以后在时间线上折叠"
@@ -48,3 +51,5 @@ stpvMuteInstance: "在时间线上折叠来自此实例的帖子"
 stpvDomainUserSaysSomething: "来自 {domain} 的 {name} 说了什么"
 stpvReactionsStat: 表情回应统计图
 stpvReactionsStatDescription: 显示了你发布的前100多emoji的数量
+stpvPFprefix: "前缀..."
+stpvPFsuffix: "...后缀"

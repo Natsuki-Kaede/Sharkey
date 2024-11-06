@@ -5353,6 +5353,10 @@ export interface Locale extends ILocale {
          * オンにすると、このお知らせは通知されず、既読にする必要もなくなります。
          */
         "silenceDescription": string;
+        /**
+         * New
+         */
+        "new": string;
     };
     "_initialAccountSetting": {
         /**
@@ -8442,6 +8446,10 @@ export interface Locale extends ILocale {
          * アプリケーションにアクセス許可を与えるには、ログインが必要です。
          */
         "pleaseLogin": string;
+        /**
+         * Allowed
+         */
+        "allowed": string;
     };
     "_antennaSources": {
         /**
@@ -10604,6 +10612,30 @@ export interface Locale extends ILocale {
      */
     "mutuals": string;
     /**
+     * Private account
+     */
+    "isLocked": string;
+    /**
+     * Administrator
+     */
+    "isAdmin": string;
+    /**
+     * Bot user
+     */
+    "isBot": string;
+    /**
+     * Open
+     */
+    "open": string;
+    /**
+     * Destination address
+     */
+    "emailDestination": string;
+    /**
+     * Date
+     */
+    "date": string;
+    /**
      * Quoted.
      */
     "quoted": string;
@@ -10964,6 +10996,10 @@ export interface Locale extends ILocale {
      * Blocking you
      */
     "blockingYou": string;
+    /**
+     * Show warning when opening external URLs
+     */
+    "warnExternalUrl": string;
     "_mfm": {
         /**
          * This is not a widespread feature, it may not display properly on most other fedi software, including other Misskey forks
@@ -11486,6 +11522,16 @@ export interface Locale extends ILocale {
              */
             "caption": string;
         };
+        "advancedPostForm": {
+            /**
+             * 高级发帖框模式
+             */
+            "label": string;
+            /**
+             * 允许添加前缀和小尾巴等
+             */
+            "caption": string;
+        };
     };
     /**
      * 在时间线上折叠该用户的帖子
@@ -11519,6 +11565,14 @@ export interface Locale extends ILocale {
      * 显示了你发布的前100多emoji的数量
      */
     "stpvReactionsStatDescription": string;
+    /**
+     * 前缀...
+     */
+    "stpvPFprefix": string;
+    /**
+     * ...后缀
+     */
+    "stpvPFsuffix": string;
 }
 declare const locales: {
     [lang: string]: Locale;

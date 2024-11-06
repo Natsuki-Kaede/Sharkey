@@ -23,4 +23,16 @@ export const stpvDefaultStoreExtension = {
 		where: 'device',
 		default: true as boolean,
 	},
+	stpvAdvancedPostForm: {
+		where: 'device',
+		default: false as boolean,
+	},
+	stpvPFDefaultPrefix: {
+		where: 'device',
+		default: '' as string,
+	},
+	stpvPFDefaultSuffix: {
+		where: 'device',
+		default: '' as string,
+	},
 } as const;
