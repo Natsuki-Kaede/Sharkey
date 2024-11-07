@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-show="!isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
-	:class="$style.root"
+	:class="[$style.root, { [$style.skipRender]: defaultStore.state.enableRenderingOptimization } ]"
 	:tabindex="isDeleted ? '-1' : '0'"
 >
 	<div v-if="appearNote.reply && appearNote.reply.replyId && !conversationLoaded" style="padding: 16px">
@@ -908,6 +908,11 @@ onUnmounted(() => {
 			box-sizing: border-box;
 		}
 	}
+}
+
+.skipRender {
+	content-visibility: auto;
+	contain-intrinsic-size: 0 180px;
 }
 
 .footer {

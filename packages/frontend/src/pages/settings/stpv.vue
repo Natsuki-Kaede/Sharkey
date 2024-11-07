@@ -5,6 +5,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div class="_gaps_m">
+	<div class="_gaps_m">
+		<div class="_gaps_s">
+			<MkSwitch v-model="enableRenderingOptimization">
+				enableRenderingOptimization
+			</MkSwitch>
+		</div>
+	</div>
 	<MkInfo>
 		{{ i18n.ts._stpvPlus.info }}
 	</MkInfo>
@@ -142,6 +149,8 @@ const meId = $i.id;
 
 const defaultFont = getDefaultFontSettings();
 console.log(defaultFont);
+
+const enableRenderingOptimization = computed(defaultStore.makeGetterSetter('enableRenderingOptimization'));
 
 const collapsedInReplyTo = defaultStore.reactiveState.collapseNotesRepliedTo;
 

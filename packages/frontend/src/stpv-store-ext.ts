@@ -1,4 +1,8 @@
 export const stpvDefaultStoreExtension = {
+	enableRenderingOptimization: {
+		where: 'device',
+		default: true as boolean,
+	},
 	chineseAutospacing: {
 		where: 'device',
 		default: null as 'all' | 'special' | null,
