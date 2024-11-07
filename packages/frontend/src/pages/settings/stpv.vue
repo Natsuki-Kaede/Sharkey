@@ -60,7 +60,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #label>{{ i18n.ts.behavior }}</template>
 		<div class="_gaps_m">
 			<div class="_gaps_s">
-				<MkSwitch v-model="stpvAdvancedPostForm">
+				<MkSwitch v-model="stpvAdvancedPostForm" disabled>
 					{{ i18n.ts._stpvPlus.advancedPostForm.label }}
 					<template #caption>{{ i18n.ts._stpvPlus.advancedPostForm.caption }}</template>
 				</MkSwitch>
