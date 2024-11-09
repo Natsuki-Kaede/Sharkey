@@ -997,7 +997,7 @@ function emitUpdReaction(emoji: string, delta: number) {
 
 .skipRender {
 	content-visibility: auto;
-	contain-intrinsic-size: auto;
+	contain-intrinsic-size: 0 300px;
 }
 
 .tip {

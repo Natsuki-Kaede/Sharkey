@@ -89,7 +89,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							:isAnim="allowAnim"
 							:isBlock="true"
 						/>
-						<div v-if="$i.policies.canUseTranslator && appearNote.text && isForeignLanguage" style="padding-top: 5px; color: var(--accent);">
+						<div v-if="appearNote.text && isForeignLanguage" style="padding-top: 5px; color: var(--accent);">
 						    <button v-if="!(translating || translation)" ref="translateButton" class="_button" @click.stop="translate()"><i class="ti ti-language-hiragana"></i>{{ i18n.ts.translate }}</button>
 						    <button v-else class="_button" @click.stop="translation= null">{{ i18n.ts.close }}</button>
 					    </div>
@@ -982,7 +982,7 @@ function emitUpdReaction(emoji: string, delta: number) {
 
 .skipRender {
 	content-visibility: auto;
-	contain-intrinsic-size: auto;
+	contain-intrinsic-size: 0 300px;
 }
 
 .tip {

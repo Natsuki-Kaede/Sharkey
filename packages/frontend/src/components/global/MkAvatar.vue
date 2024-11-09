@@ -244,7 +244,7 @@ if (props.shouldOpenLightBox && lightboxUrl) {
 
 .skipRender {
 	content-visibility: auto;
-	contain-intrinsic-size: auto;
+	contain-intrinsic-size: 0 150px;
 }
 
 .inner {
