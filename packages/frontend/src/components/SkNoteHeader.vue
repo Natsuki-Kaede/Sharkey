@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<header v-if="!classic" :class="[$style.root, { [$style.skipRender]: defaultStore.state.enableRenderingOptimization } ]">
+<header v-if="!classic" :class="$style.root">
 	<div :class="$style.section">
 		<div style="display: flex;">
 			<div v-if="mock" :class="$style.name">

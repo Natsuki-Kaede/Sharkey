@@ -26,7 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<template v-if="showDecoration">
 		<img
 			v-for="decoration in decorations ?? user.avatarDecorations"
-			:class="[$style.decoration, { [$style.decorationBlink]: decoration.blink }]"
+			:class="[$style.decoration, { [$style.decorationBlink]: decoration.blink, [$style.skipRender]: defaultStore.state.enableRenderingOptimization }]"
 			:src="getDecorationUrl(decoration)"
 			:style="{
 				rotate: getDecorationAngle(decoration),
@@ -240,6 +240,11 @@ if (props.shouldOpenLightBox && lightboxUrl) {
 	border-radius: 100%; // sharkey: controlled by square avatars setting!
 	line-height: 16px;
 	z-index: 0; // sharkey: starts stacking context to help with showing decorations behind the avatar
+}
+
+.skipRender {
+	content-visibility: auto;
+	contain-intrinsic-size: auto;
 }
 
 .inner {
