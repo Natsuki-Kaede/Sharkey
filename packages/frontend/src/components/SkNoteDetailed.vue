@@ -912,7 +912,7 @@ onUnmounted(() => {
 
 .skipRender {
 	content-visibility: auto;
-	contain-intrinsic-size: 0 180px;
+	contain-intrinsic-size: auto;
 }
 
 .footer {

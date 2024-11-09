@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<header v-if="!classic" :class="$style.root">
+<header v-if="!classic" :class="[$style.root, { [$style.skipRender]: defaultStore.state.enableRenderingOptimization } ]">
 	<div :class="$style.section">
 		<div style="display: flex;">
 			<div v-if="mock" :class="$style.name">
@@ -119,6 +119,11 @@ const mock = inject<boolean>('mock', false);
 	cursor: auto; /* not clickToOpen-able */
 	min-height: 100%;
 	align-items: center;
+}
+
+.skipRender {
+	content-visibility: auto;
+	contain-intrinsic-size: auto;
 }
 
 .classicRoot {
