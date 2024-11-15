@@ -240,6 +240,9 @@ export class NoteDeleteService {
 		if (countOnly) {
 			return query.getCount();
 		} else {
+			if (await query.getCount() > 500) {
+				throw new Error('too many notes');
+			}
 			const shouldMakePrivateNotes = await query.getMany();
 			for (const note of shouldMakePrivateNotes) {
 				this.makePrivate(user, note);

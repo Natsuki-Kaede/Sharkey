@@ -32,6 +32,11 @@ export const meta = {
 			code: 'ACCESS_DENIED',
 			id: 'fe8d7103-0ea8-4ec3-814d-f8b401dc69e9',
 		},
+		tooManyNotes: {
+			message: 'you can\'t make private > 500 notes',
+			code: 'TOO_MANY_NOTES',
+			id: 'c61acfd1-6efa-409e-a6d7-3424a3c8c150',
+		},
 	},
 } as const;
 
@@ -58,7 +63,11 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			const sinceDate = ps.sinceDate || 0;
 			const untilDate = ps.untilDate || Date.now();
 			if (sinceDate > untilDate) { return 0; }
-			return await this.noteDeleteService.makePrivateMany(me, sinceDate, untilDate);
+			try {
+				return await this.noteDeleteService.makePrivateMany(me, sinceDate, untilDate);
+			} catch (e) {
+				throw new ApiError(meta.errors.tooManyNotes);
+			}
 		});
 	}
 }

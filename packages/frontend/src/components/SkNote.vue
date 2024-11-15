@@ -1184,13 +1184,13 @@ function emitUpdReaction(emoji: string, delta: number) {
 	width: 100%;
 	margin-top: 14px;
 	position: sticky;
-	bottom: calc(var(--stickyBottom, 0px) - 100px);
+	bottom: calc(var(--stickyBottom, 0px) + 1em);
 }
 
 .showLessLabel {
 	display: inline-block;
 	background: var(--popup);
-	padding: 6px 10px;
+	padding: 6px 15px;
 	font-size: 0.8em;
 	border-radius: var(--radius-ellipse);
 	box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
