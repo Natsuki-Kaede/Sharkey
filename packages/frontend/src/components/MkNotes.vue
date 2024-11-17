@@ -73,6 +73,7 @@ defineExpose({
 			background: var(--bg);
 
 			.note {
+				box-shadow: 0 4px 25px #0000000a;
 				background: color-mix(in srgb, var(--panel) 65%, transparent);
 				border-radius: var(--radius);
 			}
