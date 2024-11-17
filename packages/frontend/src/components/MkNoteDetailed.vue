@@ -363,6 +363,19 @@ if ($i) {
 
 let renoting = false;
 
+const expectedLangs = computed(() => new Set([
+  (miLocalStorage.getItem('lang') ?? navigator.language).slice(0, 2),
+  navigator.language.slice(0, 2)
+]));
+const noteLanguage = computed(() => {
+  if (!appearNote.value.text || appearNote.value.text.length < 10) return '';
+  return detectLanguage(appearNote.value.text);
+});
+const isUnexpectedLanguage = computed(() => {
+  const lang = noteLanguage.value;
+  return lang !== '' && !expectedLangs.value.has(lang);
+});
+
 const pleaseLoginContext = computed<OpenOnRemoteOptions>(() => ({
 	type: 'lookup',
 	url: `https://${host}/notes/${appearNote.value.id}`,
@@ -744,18 +757,6 @@ async function menuVersions(): Promise<void> {
 async function clip(): Promise<void> {
 	os.popupMenu(await getNoteClipMenu({ note: note.value, isDeleted }), clipButton.value).then(focus);
 }
-
-function isUnexpectedNote(note: Misskey.entities.Note): boolean {
-  if (!note.text) return false;
-  const currentLang = (miLocalStorage.getItem('lang') ?? navigator.language).slice(0, 2);
-  const expectedLangs = new Set([
-    currentLang,
-    navigator.language
-  ]);
-  const postLang = detectLanguage(note.text);
-  return postLang !== '' && !expectedLangs.has(postLang);
-}
-const isUnexpectedLanguage = computed(() => isUnexpectedNote(appearNote.value));
 
 async function translate(): Promise<void> {
 	if (translation.value != null) return;
