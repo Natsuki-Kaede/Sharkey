@@ -6,13 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <MkStickyContainer>
 	<template #header>
-		<MkTab v-model="tab" :class="$style.tab">
-			<option value="pinned">{{ i18n.ts.pinnedOnly }}</option>
-			<option value="featured">{{ i18n.ts.featured }}</option>
-			<option :value="null">{{ i18n.ts.notes }}</option>
-			<option value="all">{{ i18n.ts.all }}</option>
-			<option value="files">{{ i18n.ts.withFiles }}</option>
-		</MkTab>
+		<MkPageHeader v-model:tab="tab" :class="$style.tab" :actions="headerActions" :tabs="headerTabs" hideTitle/>
 	</template>
 	<div v-if="tab === 'pinned'" class="_gaps">
 		<div v-if="user.pinnedNotes.length < 1" class="_fullinfo">
