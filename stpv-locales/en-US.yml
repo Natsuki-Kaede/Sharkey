@@ -46,6 +46,9 @@ _stpvPlus:
   advancedPostForm:
     label: Advanced post form
     caption: Allows adding prefixes, suffixes, etc.
+  combineRepliesQuotes:
+    label: Combine quotes and replies
+    caption: Display both quotes and replies on the post details page
 stpvMuteUser: "Soft mute notes in timeline"
 stpvUnmuteUser: "Don't soft mute notes in timeline"
 stpvMuteNote: "Soft mute this note later"

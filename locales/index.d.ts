@@ -11532,6 +11532,16 @@ export interface Locale extends ILocale {
              */
             "caption": string;
         };
+        "combineRepliesQuotes": {
+            /**
+             * 合并引用和回复
+             */
+            "label": string;
+            /**
+             * 在帖子详细页同时显示引用和回复
+             */
+            "caption": string;
+        };
     };
     /**
      * 在时间线上折叠该用户的帖子

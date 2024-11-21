@@ -73,6 +73,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</MkSwitch>
 			</div>
 			<div class="_gaps_s">
+				<MkSwitch v-model="stpvCombineRepliesQuotes">
+					{{ i18n.ts._stpvPlus.combineRepliesQuotes.label }}
+					<template #caption>{{ i18n.ts._stpvPlus.combineRepliesQuotes.caption }}</template>
+				</MkSwitch>
+			</div>
+			<div class="_gaps_s">
 				<MkRadios v-model="autoSpacingBehaviour">
 					<template #label>自动空格</template>
 					<option :value="null">{{ i18n.ts.disabled }}</option>
@@ -158,6 +164,7 @@ const autoSpacingBehaviour = computed(defaultStore.makeGetterSetter('chineseAuto
 const stpvDisableAllReactions = computed(defaultStore.makeGetterSetter('stpvDisableAllReactions'));
 const stpvHideReplyAcct = computed(defaultStore.makeGetterSetter('stpvHideReplyAcct'));
 const stpvAdvancedPostForm = computed(defaultStore.makeGetterSetter('stpvAdvancedPostForm'));
+const stpvCombineRepliesQuotes = computed(defaultStore.makeGetterSetter('stpvCombineRepliesQuotes'));
 
 const stpvMutedUsersList = computed({
 	get: () => defaultStore.reactiveState.stpvClientMutedUsers.value.filter(x => x).join('\n'),

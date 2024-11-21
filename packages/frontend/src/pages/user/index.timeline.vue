@@ -22,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, defineAsyncComponent, watch } from 'vue';
+import { ref, computed, watch, defineAsyncComponent } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkNotes from '@/components/MkNotes.vue';
 import { i18n } from '@/i18n.js';
@@ -40,7 +40,7 @@ const props = defineProps<{
 	user: Misskey.entities.UserDetailed;
 }>();
 
-const tab = ref<string | null>('all');
+const tab = ref('all');
 
 const timetraveled = ref<Date>();
 const withRenotes = ref(true);

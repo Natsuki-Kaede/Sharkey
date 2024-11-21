@@ -43,6 +43,9 @@ _stpvPlus:
   advancedPostForm:
     label: 高级发帖框模式
     caption: 允许添加前缀和小尾巴等
+  combineRepliesQuotes:
+    label: 合并引用和回复
+    caption: 在帖子详细页同时显示引用和回复
 stpvMuteUser: "在时间线上折叠该用户的帖子"
 stpvUnmuteUser: "在时间线上恢复显示该用户的帖子"
 stpvMuteNote: "以后在时间线上折叠"

@@ -39,4 +39,8 @@ export const stpvDefaultStoreExtension = {
 		where: 'device',
 		default: '' as string,
 	},
+	stpvCombineRepliesQuotes: {
+		where: 'device',
+		default: false,
+	},
 } as const;

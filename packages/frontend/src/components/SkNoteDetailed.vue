@@ -191,10 +191,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<div>
 		<div v-if="tab === 'replies'">
-			<div v-if="!repliesLoaded" style="padding: 16px">
+			<!-- <div v-if="!repliesLoaded" style="padding: 16px">
 				<MkButton style="margin: 0 auto;" primary rounded @click="loadReplies">{{ i18n.ts.loadReplies }}</MkButton>
-			</div>
-			<SkNoteSub v-for="note in replies" :key="note.id" :note="note" :class="$style.reply" :detail="true" :expandAllCws="props.expandAllCws" :onDeleteCallback="removeReply" :isReply="true"/>
+			</div> -->
+			<MkPagination ref="repliesPagingComponent" :pagination="repliesPagination">
+				<template #default="{ items }">
+					<SkNoteSub v-for="note in items" :key="note.id" :note="note" :class="$style.reply" :detail="true" :expandAllCws="props.expandAllCws" :onDeleteCallback="removeReply" :isReply="true"/>
+				</template>
+			</MkPagination>
 		</div>
 		<div v-else-if="tab === 'renotes'" :class="$style.tab_renotes">
 			<MkPagination :pagination="renotesPagination" :disableAutoLoad="true">
@@ -208,10 +212,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</MkPagination>
 		</div>
 		<div v-if="tab === 'quotes'">
-			<div v-if="!quotesLoaded" style="padding: 16px">
+			<MkPagination ref="quotesPagingComponent" :pagination="quotesPagination">
+				<template #default="{ items }">
+					<SkNoteSub v-for="note in items" :key="note.id" :note="note" :class="$style.reply" :detail="true" :expandAllCws="props.expandAllCws" :onDeleteCallback="removeReply" :isReply="true"/>
+				</template>
+			</MkPagination>
+			<!-- <div v-if="!quotesLoaded" style="padding: 16px">
 				<MkButton style="margin: 0 auto;" primary rounded @click="loadQuotes">{{ i18n.ts.loadReplies }}</MkButton>
 			</div>
-			<SkNoteSub v-for="note in quotes" :key="note.id" :note="note" :class="$style.reply" :detail="true" :expandAllCws="props.expandAllCws" :reply="true"/>
+			<SkNoteSub v-for="note in quotes" :key="note.id" :note="note" :class="$style.reply" :detail="true" :expandAllCws="props.expandAllCws" :reply="true"/> -->
 		</div>
 		<div v-else-if="tab === 'reactions'" :class="$style.tab_reactions">
 			<div :class="$style.reactionTabs">
@@ -244,11 +253,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, onUnmounted, onUpdated, provide, ref, shallowRef, watch } from 'vue';
+import { computed, inject, onMounted, onUnmounted, onUpdated, provide, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import * as mfm from '@transfem-org/sfm-js';
 import * as Misskey from 'misskey-js';
 import { isPureRenote } from 'misskey-js/note.js';
 import { isLink } from '@@/js/is-link.js';
+import { host } from '@@/js/config.js';
 import SkNoteSub from '@/components/SkNoteSub.vue';
 import SkNoteSimple from '@/components/SkNoteSimple.vue';
 import MkReactionsViewer from '@/components/MkReactionsViewer.vue';
@@ -272,7 +282,6 @@ import { reactionPicker } from '@/scripts/reaction-picker.js';
 import { extractUrlFromMfm } from '@/scripts/extract-url-from-mfm.js';
 import { $i } from '@/account.js';
 import { i18n } from '@/i18n.js';
-import { host } from '@@/js/config.js';
 import { getNoteClipMenu, getNoteMenu } from '@/scripts/get-note-menu.js';
 import { getNoteVersionsMenu } from '@/scripts/get-note-versions-menu.js';
 import { useNoteCapture } from '@/scripts/use-note-capture.js';
@@ -354,7 +363,7 @@ const animated = computed(() => parsed.value ? checkAnimationFromMfm(parsed.valu
 const allowAnim = ref(defaultStore.state.advancedMfm && defaultStore.state.animatedMfm ? true : false);
 const showTicker = (defaultStore.state.instanceTicker === 'always') || (defaultStore.state.instanceTicker === 'remote' && appearNote.value.user.instance);
 const conversation = ref<Misskey.entities.Note[]>([]);
-const replies = ref<Misskey.entities.Note[]>([]);
+// const replies = ref<Misskey.entities.Note[]>([]);
 const quotes = ref<Misskey.entities.Note[]>([]);
 const canRenote = computed(() => ['public', 'home'].includes(appearNote.value.visibility) || (appearNote.value.visibility === 'followers' && appearNote.value.userId === $i?.id));
 const defaultLike = computed(() => defaultStore.state.like ? defaultStore.state.like : null);
@@ -418,6 +427,25 @@ provide('react', (reaction: string) => {
 const tab = ref(props.initialTab);
 const reactionTabType = ref<string | null>(null);
 
+const repliesPagination = computed(() => ({
+	endpoint: 'notes/children' as const,
+	limit: 10,
+	params: {
+		noteId: appearNote.value.id,
+		showQuotes: defaultStore.reactiveState.stpvCombineRepliesQuotes.value,
+	},
+}));
+const repliesPagingComponent = useTemplateRef('repliesPagingComponent');
+const quotesPagination = computed(() => ({
+	endpoint: 'notes/renotes' as const,
+	limit: 10,
+	params: {
+		noteId: appearNote.value.id,
+		quote: true,
+	},
+}));
+const quotesPagingComponent = useTemplateRef('quotesPagingComponent');
+
 const renotesPagination = computed<Paging>(() => ({
 	endpoint: 'notes/renotes',
 	limit: 10,
@@ -436,16 +464,13 @@ const reactionsPagination = computed<Paging>(() => ({
 }));
 
 async function addReplyTo(replyNote: Misskey.entities.Note) {
-	replies.value.unshift(replyNote);
+	repliesPagingComponent.value?.prepend(replyNote);
 	appearNote.value.repliesCount += 1;
 }
 
 async function removeReply(id: Misskey.entities.Note['id']) {
-	const replyIdx = replies.value.findIndex(note => note.id === id);
-	if (replyIdx >= 0) {
-		replies.value.splice(replyIdx, 1);
-		appearNote.value.repliesCount -= 1;
-	}
+	repliesPagingComponent.value?.removeItem(id);
+	appearNote.value.repliesCount -= 1;
 }
 
 useNoteCapture({
@@ -804,35 +829,35 @@ function blur() {
 	noteEl.value?.blur();
 }
 
-const repliesLoaded = ref(false);
+// const repliesLoaded = ref(false);
 
-function loadReplies() {
-	repliesLoaded.value = true;
-	misskeyApi('notes/children', {
-		noteId: appearNote.value.id,
-		limit: 30,
-		showQuotes: false,
-	}).then(res => {
-		replies.value = res;
-	});
-}
+// function loadReplies() {
+// 	repliesLoaded.value = true;
+// 	misskeyApi('notes/children', {
+// 		noteId: appearNote.value.id,
+// 		limit: 30,
+// 		showQuotes: false,
+// 	}).then(res => {
+// 		replies.value = res;
+// 	});
+// }
 
-loadReplies();
+// loadReplies();
 
-const quotesLoaded = ref(false);
+// const quotesLoaded = ref(false);
 
-function loadQuotes() {
-	quotesLoaded.value = true;
-	misskeyApi('notes/renotes', {
-		noteId: appearNote.value.id,
-		limit: 30,
-		quote: true,
-	}).then(res => {
-		quotes.value = res;
-	});
-}
+// function loadQuotes() {
+// 	quotesLoaded.value = true;
+// 	misskeyApi('notes/renotes', {
+// 		noteId: appearNote.value.id,
+// 		limit: 30,
+// 		quote: true,
+// 	}).then(res => {
+// 		quotes.value = res;
+// 	});
+// }
 
-loadQuotes();
+// loadQuotes();
 
 const conversationLoaded = ref(false);
 
