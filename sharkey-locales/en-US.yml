@@ -397,3 +397,8 @@ _auth:
   allowed: "Allowed"
 _announcement:
   new: "New"
+_deck:
+  _columns:
+    following: "Following"
+
+selectFollowRelationship: "Select a follow relationship..."

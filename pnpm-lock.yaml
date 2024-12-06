@@ -45,6 +45,10 @@ importers:
       typescript:
         specifier: 5.6.2
         version: 5.6.2
+    optionalDependencies:
+      cypress:
+        specifier: 13.14.2
+        version: 13.14.2
     devDependencies:
       '@misskey-dev/eslint-plugin':
         specifier: 2.0.3
@@ -61,9 +65,6 @@ importers:
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
-      cypress:
-        specifier: 13.14.2
-        version: 13.14.2
       eslint:
         specifier: 9.8.0
         version: 9.8.0
@@ -169,6 +170,9 @@ importers:
       '@twemoji/parser':
         specifier: 15.1.1
         version: 15.1.1
+      '@types/psl':
+        specifier: ^1.1.3
+        version: 1.1.3
       accepts:
         specifier: 1.3.8
         version: 1.3.8
@@ -364,6 +368,9 @@ importers:
       proxy-addr:
         specifier: ^2.0.7
         version: 2.0.7
+      psl:
+        specifier: ^1.13.0
+        version: 1.13.0
       pug:
         specifier: 3.0.3
         version: 3.0.3
@@ -885,6 +892,10 @@ importers:
       vuedraggable:
         specifier: next
         version: 4.1.0(vue@3.5.10(typescript@5.6.2))
+    optionalDependencies:
+      cypress:
+        specifier: 13.15.0
+        version: 13.15.0
     devDependencies:
       '@misskey-dev/summaly':
         specifier: 5.1.0
@@ -1003,9 +1014,6 @@ importers:
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
-      cypress:
-        specifier: 13.15.0
-        version: 13.15.0
       eslint-plugin-import:
         specifier: 2.30.0
         version: 2.30.0(@typescript-eslint/parser@7.17.0(eslint@9.8.0)(typescript@5.6.2))(eslint@9.8.0)
@@ -4871,6 +4879,9 @@ packages:
   '@types/proxy-addr@2.0.3':
     resolution: {integrity: sha512-TgAHHO4tNG3HgLTUhB+hM4iwW6JUNeQHCLnF1DjaDA9c69PN+IasoFu2MYDhubFc+ZIw5c5t9DMtjvrD6R3Egg==}
 
+  '@types/psl@1.1.3':
+    resolution: {integrity: sha512-Iu174JHfLd7i/XkXY6VDrqSlPvTDQOtQI7wNAXKKOAADJ9TduRLkNdMgjGiMxSttUIZnomv81JAbAbC0DhggxA==}
+
   '@types/pug@2.0.10':
     resolution: {integrity: sha512-Sk/uYFOBAB7mb74XcpizmH0KOR2Pv3D2Hmrh1Dmy5BmK3MpdSa5kqZcg6EKBdklU0bFXX9gCfzvpnyUehrPIuA==}
 
@@ -5343,6 +5354,7 @@ packages:
 
   acorn-import-assertions@1.9.0:
     resolution: {integrity: sha512-cmMwop9x+8KFhxvKrKfPYmN6/pKTYYHBqLa0DfvVZcKMJWNyWLnaqND7dx/qn66R7ewM1UX5XMaDVP5wlVTaVA==}
+    deprecated: package has been renamed to acorn-import-attributes
     peerDependencies:
       acorn: ^8
 
@@ -9771,8 +9783,8 @@ packages:
   pseudomap@1.0.2:
     resolution: {integrity: sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==}
 
-  psl@1.9.0:
-    resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
+  psl@1.13.0:
+    resolution: {integrity: sha512-BFwmFXiJoFqlUpZ5Qssolv15DMyc84gTBds1BjsV1BfXEo1UyyD7GsmN67n7J77uRhoSNW1AXtXKPLcBFQn9Aw==}
 
   pstree.remy@1.1.8:
     resolution: {integrity: sha512-77DZwxQmxKnu3aR542U+X8FypNzbfJ+C5XQDk3uWjWxn6151aIMGthWYRXTqT1E5oJvg+ljaa2OJi+VfvCOQ8w==}
@@ -11407,6 +11419,9 @@ packages:
   vue-component-type-helpers@2.0.16:
     resolution: {integrity: sha512-qisL/iAfdO++7w+SsfYQJVPj6QKvxp4i1MMxvsNO41z/8zu3KuAw9LkhKUfP/kcOWGDxESp+pQObWppXusejCA==}
 
+  vue-component-type-helpers@2.1.10:
+    resolution: {integrity: sha512-lfgdSLQKrUmADiSV6PbBvYgQ33KF3Ztv6gP85MfGaGaSGMTXORVaHT1EHfsqCgzRNBstPKYDmvAV9Do5CmJ07A==}
+
   vue-component-type-helpers@2.1.6:
     resolution: {integrity: sha512-ng11B8B/ZADUMMOsRbqv0arc442q7lifSubD0v8oDXIFoMg/mXwAPUunrroIDkY+mcD0dHKccdaznSVp8EoX3w==}
 
@@ -12771,6 +12786,7 @@ snapshots:
       tough-cookie: 4.1.4
       tunnel-agent: 0.6.0
       uuid: 8.3.2
+    optional: true
 
   '@cypress/xvfb@1.2.4(supports-color@8.1.1)':
     dependencies:
@@ -12778,6 +12794,7 @@ snapshots:
       lodash.once: 4.1.1
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   '@digitalbazaar/http-client@3.4.1(web-streams-polyfill@4.0.0)':
     dependencies:
@@ -13166,7 +13183,7 @@ snapshots:
   '@eslint/config-array@0.17.1':
     dependencies:
       '@eslint/object-schema': 2.1.4
-      debug: 4.3.5(supports-color@8.1.1)
+      debug: 4.3.7
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -13188,7 +13205,7 @@ snapshots:
   '@eslint/eslintrc@3.1.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.5(supports-color@8.1.1)
+      debug: 4.3.7
       espree: 10.1.0
       globals: 14.0.0
       ignore: 5.3.1
@@ -15184,7 +15201,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.10(typescript@5.6.2)
-      vue-component-type-helpers: 2.1.6
+      vue-component-type-helpers: 2.1.10
 
   '@swc/cli@0.3.12(@swc/core@1.6.6)(chokidar@3.5.3)':
     dependencies:
@@ -15713,6 +15730,8 @@ snapshots:
     dependencies:
       '@types/node': 20.14.12
 
+  '@types/psl@1.1.3': {}
+
   '@types/pug@2.0.10': {}
 
   '@types/punycode@2.1.4': {}
@@ -15772,11 +15791,13 @@ snapshots:
     dependencies:
       '@types/sinonjs__fake-timers': 8.1.5
 
-  '@types/sinonjs__fake-timers@8.1.1': {}
+  '@types/sinonjs__fake-timers@8.1.1':
+    optional: true
 
   '@types/sinonjs__fake-timers@8.1.5': {}
 
-  '@types/sizzle@2.3.3': {}
+  '@types/sizzle@2.3.3':
+    optional: true
 
   '@types/stack-utils@2.0.1': {}
 
@@ -16690,7 +16711,8 @@ snapshots:
     dependencies:
       tslib: 2.6.3
 
-  astral-regex@2.0.0: {}
+  astral-regex@2.0.0:
+    optional: true
 
   astring@1.9.0: {}
 
@@ -16704,7 +16726,8 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  at-least-node@1.0.0: {}
+  at-least-node@1.0.0:
+    optional: true
 
   atomic-sleep@1.0.0: {}
 
@@ -16727,9 +16750,11 @@ snapshots:
       sinon: 16.1.3
       tslib: 2.6.2
 
-  aws-sign2@0.7.0: {}
+  aws-sign2@0.7.0:
+    optional: true
 
-  aws4@1.12.0: {}
+  aws4@1.12.0:
+    optional: true
 
   axios@0.24.0:
     dependencies:
@@ -16883,7 +16908,8 @@ snapshots:
 
   binary-extensions@2.2.0: {}
 
-  blob-util@2.0.2: {}
+  blob-util@2.0.2:
+    optional: true
 
   bluebird@3.7.2: {}
 
@@ -16977,7 +17003,8 @@ snapshots:
     dependencies:
       node-int64: 0.4.0
 
-  buffer-crc32@0.2.13: {}
+  buffer-crc32@0.2.13:
+    optional: true
 
   buffer-crc32@1.0.0: {}
 
@@ -16994,6 +17021,7 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    optional: true
 
   buffer@6.0.3:
     dependencies:
@@ -17081,7 +17109,8 @@ snapshots:
       normalize-url: 6.1.0
       responselike: 2.0.1
 
-  cachedir@2.3.0: {}
+  cachedir@2.3.0:
+    optional: true
 
   call-bind@1.0.2:
     dependencies:
@@ -17125,7 +17154,8 @@ snapshots:
 
   canvas-confetti@1.9.3: {}
 
-  caseless@0.12.0: {}
+  caseless@0.12.0:
+    optional: true
 
   cbor@9.0.2:
     dependencies:
@@ -17273,6 +17303,7 @@ snapshots:
   cli-cursor@3.1.0:
     dependencies:
       restore-cursor: 3.1.0
+    optional: true
 
   cli-highlight@2.1.11:
     dependencies:
@@ -17290,11 +17321,13 @@ snapshots:
       string-width: 4.2.3
     optionalDependencies:
       '@colors/colors': 1.5.0
+    optional: true
 
   cli-truncate@2.1.0:
     dependencies:
       slice-ansi: 3.0.0
       string-width: 4.2.3
+    optional: true
 
   cli-width@4.1.0: {}
 
@@ -17352,7 +17385,8 @@ snapshots:
 
   colord@2.9.3: {}
 
-  colorette@2.0.19: {}
+  colorette@2.0.19:
+    optional: true
 
   combined-stream@1.0.8:
     dependencies:
@@ -17364,7 +17398,8 @@ snapshots:
 
   commander@2.20.3: {}
 
-  commander@6.2.1: {}
+  commander@6.2.1:
+    optional: true
 
   commander@7.2.0: {}
 
@@ -17372,7 +17407,8 @@ snapshots:
 
   commander@9.5.0: {}
 
-  common-tags@1.8.2: {}
+  common-tags@1.8.2:
+    optional: true
 
   commondir@1.0.1: {}
 
@@ -17628,6 +17664,7 @@ snapshots:
       tmp: 0.2.3
       untildify: 4.0.0
       yauzl: 2.10.0
+    optional: true
 
   cypress@13.15.0:
     dependencies:
@@ -17673,6 +17710,7 @@ snapshots:
       tmp: 0.2.3
       untildify: 4.0.0
       yauzl: 2.10.0
+    optional: true
 
   dashdash@1.14.1:
     dependencies:
@@ -17984,6 +18022,7 @@ snapshots:
   enquirer@2.3.6:
     dependencies:
       ansi-colors: 4.1.3
+    optional: true
 
   entities@2.2.0: {}
 
@@ -18463,7 +18502,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.3
-      debug: 4.3.5(supports-color@8.1.1)
+      debug: 4.3.7
       escape-string-regexp: 4.0.0
       eslint-scope: 8.0.2
       eslint-visitor-keys: 4.0.0
@@ -18539,7 +18578,8 @@ snapshots:
 
   event-target-shim@5.0.1: {}
 
-  eventemitter2@6.4.7: {}
+  eventemitter2@6.4.7:
+    optional: true
 
   eventemitter3@4.0.7: {}
 
@@ -18568,6 +18608,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
+    optional: true
 
   execa@5.1.1:
     dependencies:
@@ -18728,6 +18769,7 @@ snapshots:
       '@types/yauzl': 2.10.0
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   extsprintf@1.3.0: {}
 
@@ -18835,6 +18877,7 @@ snapshots:
   fd-slicer@1.1.0:
     dependencies:
       pend: 1.2.0
+    optional: true
 
   feed@4.2.2:
     dependencies:
@@ -18848,6 +18891,7 @@ snapshots:
   figures@3.2.0:
     dependencies:
       escape-string-regexp: 1.0.5
+    optional: true
 
   figures@6.1.0:
     dependencies:
@@ -18988,7 +19032,8 @@ snapshots:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
-  forever-agent@0.6.1: {}
+  forever-agent@0.6.1:
+    optional: true
 
   form-data-encoder@2.1.4: {}
 
@@ -19034,6 +19079,7 @@ snapshots:
       graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
+    optional: true
 
   fs-minipass@2.1.0:
     dependencies:
@@ -19122,6 +19168,7 @@ snapshots:
   getos@3.2.1:
     dependencies:
       async: 3.2.4
+    optional: true
 
   getpass@0.1.7:
     dependencies:
@@ -19179,6 +19226,7 @@ snapshots:
   global-dirs@3.0.1:
     dependencies:
       ini: 2.0.0
+    optional: true
 
   globals@11.12.0: {}
 
@@ -19403,6 +19451,7 @@ snapshots:
       assert-plus: 1.0.0
       jsprim: 2.0.2
       sshpk: 1.18.0
+    optional: true
 
   http2-wrapper@1.0.3:
     dependencies:
@@ -19430,7 +19479,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  human-signals@1.1.1: {}
+  human-signals@1.1.1:
+    optional: true
 
   human-signals@2.1.0: {}
 
@@ -19504,7 +19554,8 @@ snapshots:
 
   ini@1.3.8: {}
 
-  ini@2.0.0: {}
+  ini@2.0.0:
+    optional: true
 
   insert-text-at-cursor@0.3.0: {}
 
@@ -19597,6 +19648,7 @@ snapshots:
   is-ci@3.0.1:
     dependencies:
       ci-info: 3.7.1
+    optional: true
 
   is-core-module@2.13.1:
     dependencies:
@@ -19641,6 +19693,7 @@ snapshots:
     dependencies:
       global-dirs: 3.0.1
       is-path-inside: 3.0.3
+    optional: true
 
   is-ip@3.1.0:
     dependencies:
@@ -19721,7 +19774,8 @@ snapshots:
     dependencies:
       which-typed-array: 1.1.15
 
-  is-typedarray@1.0.0: {}
+  is-typedarray@1.0.0:
+    optional: true
 
   is-unicode-supported@0.1.0: {}
 
@@ -19752,7 +19806,8 @@ snapshots:
 
   isexe@3.1.1: {}
 
-  isstream@0.1.2: {}
+  isstream@0.1.2:
+    optional: true
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -20322,6 +20377,7 @@ snapshots:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
+    optional: true
 
   jsrsasign@11.1.0: {}
 
@@ -20408,6 +20464,7 @@ snapshots:
       wrap-ansi: 7.0.0
     optionalDependencies:
       enquirer: 2.3.6
+    optional: true
 
   local-pkg@0.5.0:
     dependencies:
@@ -20432,7 +20489,8 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
-  lodash.once@4.1.1: {}
+  lodash.once@4.1.1:
+    optional: true
 
   lodash.uniq@4.5.0: {}
 
@@ -20449,6 +20507,7 @@ snapshots:
       cli-cursor: 3.1.0
       slice-ansi: 4.0.0
       wrap-ansi: 6.2.0
+    optional: true
 
   longest-streak@3.1.0: {}
 
@@ -21423,7 +21482,8 @@ snapshots:
 
   os-utils@0.0.14: {}
 
-  ospath@1.2.2: {}
+  ospath@1.2.2:
+    optional: true
 
   otpauth@9.3.2:
     dependencies:
@@ -21574,9 +21634,11 @@ snapshots:
 
   peek-readable@5.2.0: {}
 
-  pend@1.2.0: {}
+  pend@1.2.0:
+    optional: true
 
-  performance-now@2.1.0: {}
+  performance-now@2.1.0:
+    optional: true
 
   pg-cloudflare@1.1.1:
     optional: true
@@ -21895,7 +21957,8 @@ snapshots:
 
   prettier@3.3.3: {}
 
-  pretty-bytes@5.6.0: {}
+  pretty-bytes@5.6.0:
+    optional: true
 
   pretty-format@27.5.1:
     dependencies:
@@ -21973,7 +22036,8 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
-  proxy-from-env@1.0.0: {}
+  proxy-from-env@1.0.0:
+    optional: true
 
   proxy-from-env@1.1.0: {}
 
@@ -21985,7 +22049,9 @@ snapshots:
 
   pseudomap@1.0.2: {}
 
-  psl@1.9.0: {}
+  psl@1.13.0:
+    dependencies:
+      punycode: 2.3.1
 
   pstree.remy@1.1.8: {}
 
@@ -22331,6 +22397,7 @@ snapshots:
   request-progress@3.0.0:
     dependencies:
       throttleit: 1.0.0
+    optional: true
 
   require-directory@2.1.1: {}
 
@@ -22380,6 +22447,7 @@ snapshots:
     dependencies:
       onetime: 5.1.2
       signal-exit: 3.0.7
+    optional: true
 
   ret@0.5.0: {}
 
@@ -22387,7 +22455,8 @@ snapshots:
 
   reusify@1.0.4: {}
 
-  rfdc@1.3.0: {}
+  rfdc@1.3.0:
+    optional: true
 
   rfdc@1.4.1: {}
 
@@ -22767,12 +22836,14 @@ snapshots:
       ansi-styles: 4.3.0
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
+    optional: true
 
   slice-ansi@4.0.0:
     dependencies:
       ansi-styles: 4.3.0
       astral-regex: 2.0.0
       is-fullwidth-code-point: 3.0.0
+    optional: true
 
   slick@1.12.2: {}
 
@@ -22874,6 +22945,7 @@ snapshots:
       jsbn: 0.1.1
       safer-buffer: 2.1.2
       tweetnacl: 0.14.5
+    optional: true
 
   ssri@10.0.4:
     dependencies:
@@ -23170,7 +23242,8 @@ snapshots:
 
   throttle-debounce@5.0.2: {}
 
-  throttleit@1.0.0: {}
+  throttleit@1.0.0:
+    optional: true
 
   through@2.3.8: {}
 
@@ -23224,7 +23297,7 @@ snapshots:
 
   tough-cookie@4.1.4:
     dependencies:
-      psl: 1.9.0
+      psl: 1.13.0
       punycode: 2.3.1
       universalify: 0.2.0
       url-parse: 1.5.10
@@ -23333,6 +23406,7 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+    optional: true
 
   tweetnacl@0.14.5: {}
 
@@ -23550,7 +23624,8 @@ snapshots:
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.5.0
 
-  untildify@4.0.0: {}
+  untildify@4.0.0:
+    optional: true
 
   update-browserslist-db@1.0.13(browserslist@4.22.2):
     dependencies:
@@ -23597,7 +23672,8 @@ snapshots:
 
   uuid@10.0.0: {}
 
-  uuid@8.3.2: {}
+  uuid@8.3.2:
+    optional: true
 
   uuid@9.0.1: {}
 
@@ -23756,6 +23832,8 @@ snapshots:
   vue-component-type-helpers@1.8.4: {}
 
   vue-component-type-helpers@2.0.16: {}
+
+  vue-component-type-helpers@2.1.10: {}
 
   vue-component-type-helpers@2.1.6: {}
 
@@ -24080,6 +24158,7 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+    optional: true
 
   yocto-queue@0.1.0: {}
 

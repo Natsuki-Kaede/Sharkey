@@ -17,6 +17,7 @@ import { DebounceLoader } from '@/misc/loader.js';
 import { IdService } from '@/core/IdService.js';
 import type { Config } from '@/config.js';
 import { ReactionsBufferingService } from '@/core/ReactionsBufferingService.js';
+import { isPackedPureRenote } from '@/misc/is-renote.js';
 import type { OnModuleInit } from '@nestjs/common';
 import type { CacheService } from '../CacheService.js';
 import type { CustomEmojiService } from '../CustomEmojiService.js';
@@ -145,27 +146,24 @@ export class NoteEntityService implements OnModuleInit {
 			} else if (packedNote.renote && (meId === packedNote.renote.userId)) {
 				hide = false;
 			} else {
-				if (packedNote.renote) {
-					const isFollowing = await this.followingsRepository.exists({
-						where: {
-							followeeId: packedNote.renote.userId,
-							followerId: meId,
-						},
-					});
+				// フォロワーかどうか
+				const isFollowing = await this.followingsRepository.exists({
+					where: {
+						followeeId: packedNote.userId,
+						followerId: meId,
+					},
+				});
 
-					hide = !isFollowing;
-				} else {
-					// フォロワーかどうか
-					const isFollowing = await this.followingsRepository.exists({
-						where: {
-							followeeId: packedNote.userId,
-							followerId: meId,
-						},
-					});
-
-					hide = !isFollowing;
-				}
+				hide = !isFollowing;
 			}
+		}
+
+		// If this is a pure renote (boost), then we should *also* check the boosted note's visibility.
+		// Otherwise we can have empty notes on the timeline, which is not good.
+		// Notes are packed in depth-first order, so we can safely grab the "isHidden" property to avoid duplicated checks.
+		// This is pulled out to ensure that we check both the renote *and* the boosted note.
+		if (packedNote.renote?.isHidden && isPackedPureRenote(packedNote)) {
+			hide = true;
 		}
 
 		if (!hide && meId && packedNote.userId !== meId) {
@@ -185,8 +183,8 @@ export class NoteEntityService implements OnModuleInit {
 			packedNote.reactionAcceptance = null;
 			packedNote.reactionAndUserPairCache = undefined;
 			packedNote.reactionCount = 0;
-			packedNote.reactionEmojis = undefined;
-			packedNote.reactions = undefined;
+			packedNote.reactionEmojis = {};
+			packedNote.reactions = {};
 			packedNote.isHidden = true;
 		}
 	}

@@ -9661,6 +9661,10 @@ export interface Locale extends ILocale {
              * ロールタイムライン
              */
             "roleTimeline": string;
+            /**
+             * Following
+             */
+            "following": string;
         };
     };
     "_dialog": {
@@ -11374,6 +11378,10 @@ export interface Locale extends ILocale {
      * Remote followers may have incomplete or outdated activity
      */
     "remoteFollowersWarning": string;
+    /**
+     * Select a follow relationship...
+     */
+    "selectFollowRelationship": string;
     /**
      * Sharkey Stelpolva Edition 为天线的设置添加了额外的关键词语法。
      * 具体而言， `domain:example.com` 这个特殊关键词会匹配所有来自 `example.com` 的帖子。这个关键词同样能使用在 OR 语法中。

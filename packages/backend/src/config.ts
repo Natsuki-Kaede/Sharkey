@@ -117,6 +117,7 @@ type Source = {
 	pidFile: string;
 
 	avatarDecorationAllowedHosts: string[] | undefined;
+	filePermissionBits?: string;
 };
 
 export type Config = {
@@ -215,6 +216,7 @@ export type Config = {
 
 	pidFile: string;
 	avatarDecorationAllowedHosts: string[] | undefined;
+	filePermissionBits?: string;
 };
 
 const _filename = fileURLToPath(import.meta.url);
@@ -351,6 +353,7 @@ export function loadConfig(): Config {
 		import: config.import,
 		pidFile: config.pidFile,
 		avatarDecorationAllowedHosts: config.avatarDecorationAllowedHosts,
+		filePermissionBits: config.filePermissionBits,
 	};
 }
 
@@ -456,7 +459,10 @@ function applyEnvOverrides(config: Source) {
 		}
 	}
 
-	const alwaysStrings = { 'chmodSocket': true } as { [key: string]: boolean };
+	const alwaysStrings: { [key in string]?: boolean } = {
+		'chmodSocket': true,
+		'filePermissionBits': true,
+	};
 
 	function _assign(path: (string | number)[], lastStep: string | number, value: string) {
 		let thisConfig = config as any;
@@ -494,7 +500,7 @@ function applyEnvOverrides(config: Source) {
 	_apply_top(['sentryForBackend', 'enableNodeProfiling']);
 	_apply_top([['clusterLimit', 'deliverJobConcurrency', 'inboxJobConcurrency', 'relashionshipJobConcurrency', 'deliverJobPerSec', 'inboxJobPerSec', 'relashionshipJobPerSec', 'deliverJobMaxAttempts', 'inboxJobMaxAttempts']]);
 	_apply_top([['outgoingAddress', 'outgoingAddressFamily', 'proxy', 'proxySmtp', 'mediaProxy', 'proxyRemoteFiles', 'videoThumbnailGenerator']]);
-	_apply_top([['maxFileSize', 'maxNoteLength', 'maxRemoteNoteLength', 'maxAltTextLength', 'maxRemoteAltTextLength', 'pidFile']]);
+	_apply_top([['maxFileSize', 'maxNoteLength', 'maxRemoteNoteLength', 'maxAltTextLength', 'maxRemoteAltTextLength', 'pidFile', 'filePermissionBits']]);
 	_apply_top(['import', ['downloadTimeout', 'maxFileSize']]);
 	_apply_top([['signToActivityPubGet', 'checkActivityPubGetSignature']]);
 }

@@ -31,6 +31,7 @@ import { handleRequestRedirectToOmitSearch } from '@/misc/fastify-hook-handlers.
 import { RateLimiterService } from '@/server/api/RateLimiterService.js';
 import { getIpHash } from '@/misc/get-ip-hash.js';
 import { AuthenticateService } from '@/server/api/AuthenticateService.js';
+import type { IEndpointMeta } from '@/server/api/endpoints.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply, FastifyPluginOptions } from 'fastify';
 import type Limiter from 'ratelimiter';
 
@@ -82,7 +83,7 @@ export class FileServerService {
 			});
 
 			fastify.get<{ Params: { key: string; } }>('/files/:key', async (request, reply) => {
-				if (!await this.checkRateLimit(request, reply, `/files/${request.params.key}`)) return;
+				if (!await this.checkRateLimit(request, reply, '/files/', request.params.key)) return;
 
 				return await this.sendDriveFile(request, reply)
 					.catch(err => this.errorHandler(request, reply, err));
@@ -109,7 +110,7 @@ export class FileServerService {
 			keyUrl.username = '';
 			keyUrl.password = '';
 
-			if (!await this.checkRateLimit(request, reply, `/proxy/${keyUrl}`)) return;
+			if (!await this.checkRateLimit(request, reply, '/proxy/', keyUrl.href)) return;
 
 			return await this.proxyHandler(request, reply)
 				.catch(err => this.errorHandler(request, reply, err));
@@ -603,7 +604,8 @@ export class FileServerService {
 			Params?: Record<string, unknown> | unknown,
 		}>,
 		reply: FastifyReply,
-		rateLimitKey: string,
+		group: string,
+		resource: string,
 	): Promise<boolean> {
 		const body = request.method === 'GET'
 			? request.query
@@ -622,32 +624,48 @@ export class FileServerService {
 		const [user] = await this.authenticateService.authenticate(token);
 		const actor = user?.id ?? getIpHash(request.ip);
 
+		// Call both limits: the per-resource limit and the shared cross-resource limit
+		return await this.checkResourceLimit(reply, actor, group, resource) && await this.checkSharedLimit(reply, actor, group);
+	}
+
+	private async checkResourceLimit(reply: FastifyReply, actor: string, group: string, resource: string): Promise<boolean> {
 		const limit = {
 			// Group by resource
-			key: rateLimitKey,
+			key: `${group}${resource}`,
 
 			// Maximum of 10 requests / 10 minutes
 			max: 10,
 			duration: 1000 * 60 * 10,
-
-			// Minimum of 250 ms between each request
-			minInterval: 250,
 		};
 
-		// Rate limit proxy requests
+		return await this.checkLimit(reply, actor, limit);
+	}
+
+	private async checkSharedLimit(reply: FastifyReply, actor: string, group: string): Promise<boolean> {
+		const limit = {
+			key: group,
+
+			// Maximum of 3600 requests per hour, which is an average of 1 per second.
+			max: 3600,
+			duration: 1000 * 60 * 60,
+		};
+
+		return await this.checkLimit(reply, actor, limit);
+	}
+
+	private async checkLimit(reply: FastifyReply, actor: string, limit: IEndpointMeta['limit'] & { key: NonNullable<string> }): Promise<boolean> {
 		try {
 			await this.rateLimiterService.limit(limit, actor);
 			return true;
 		} catch (err) {
 			// errはLimiter.LimiterInfoであることが期待される
-			reply.code(429);
-
 			if (hasRateLimitInfo(err)) {
 				const cooldownInSeconds = Math.ceil((err.info.resetMs - Date.now()) / 1000);
 				// もしかするとマイナスになる可能性がなくはないのでマイナスだったら0にしておく
 				reply.header('Retry-After', Math.max(cooldownInSeconds, 0).toString(10));
 			}
 
+			reply.code(429);
 			reply.send({
 				message: 'Rate limit exceeded. Please try again later.',
 				code: 'RATE_LIMIT_EXCEEDED',

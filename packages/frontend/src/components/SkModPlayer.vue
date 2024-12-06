@@ -451,6 +451,7 @@ onDeactivated(() => {
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	justify-content: center;
 
 	> i {
 		display: block;

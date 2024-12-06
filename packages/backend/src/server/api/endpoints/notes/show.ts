@@ -29,6 +29,12 @@ export const meta = {
 			id: '24fcbfc6-2e37-42b6-8388-c29b3861a08d',
 		},
 	},
+
+	// 2 calls per second
+	limit: {
+		duration: 1000,
+		max: 2,
+	},
 } as const;
 
 export const paramDef = {
@@ -44,7 +50,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 	constructor(
 		@Inject(DI.notesRepository)
 		private notesRepository: NotesRepository,
-		
+
 		private noteEntityService: NoteEntityService,
 		private queryService: QueryService,
 	) {
@@ -56,7 +62,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if (me) {
 				this.queryService.generateBlockedUserQuery(query, me);
 			}
-			
+
 			const note = await query.getOne();
 
 			if (note === null) {

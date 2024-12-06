@@ -311,7 +311,15 @@ export class ApiCallService implements OnApplicationShutdown {
 			throw new ApiError(accessDenied);
 		}
 
-		if (ep.meta.limit) {
+		// For endpoints without a limit, the default is 10 calls per second
+		const endpointLimit: IEndpointMeta['limit'] = ep.meta.limit ?? {
+			duration: 1000,
+			max: 10,
+		};
+
+		// We don't need this check, but removing it would cause a big merge conflict.
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		if (endpointLimit) {
 			// koa will automatically load the `X-Forwarded-For` header if `proxy: true` is configured in the app.
 			let limitActor: string;
 			if (user) {
@@ -320,7 +328,7 @@ export class ApiCallService implements OnApplicationShutdown {
 				limitActor = getIpHash(request.ip);
 			}
 
-			const limit = Object.assign({}, ep.meta.limit);
+			const limit = Object.assign({}, endpointLimit);
 
 			if (limit.key == null) {
 				(limit as any).key = ep.name;

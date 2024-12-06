@@ -141,6 +141,8 @@ html {
 	}
 }
 
+@import "./styles-font/sharkey-default.scss";
+
 html._themeChanging_ {
 	&, * {
 		transition: background 1s ease, border 1s ease !important;

@@ -1,4 +1,5 @@
 import { computed, ref, watch } from 'vue';
+import { loadFontStyle } from './load-font.js';
 import type { Ref, ComputedRef } from 'vue';
 import { miLocalStorage } from '@/local-storage.js';
 import { i18n } from '@/i18n.js';
@@ -77,10 +78,7 @@ export function getDefaultFontSettings() {
 		miLocalStorage.setItem('defaultFontFace', newFontId);
 		document.documentElement.classList.add(`default-font-${newFontId}`);
 
-		if (fontFace.value !== 'system-ui') {
-			await loadFontStyle(fontFace.value);
-		}
-		console.log(newFontId);
+		await loadFontStyle(fontFace.value);
 	}
 
 	watch(fontFace, (newVal) => {
