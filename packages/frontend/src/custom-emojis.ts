@@ -17,7 +17,7 @@ export const customEmojiCategories = computed<[ ...string[], null ]>(() => {
 			categories.add(emoji.category);
 		}
 	}
-	return markRaw([...(Array.from(categories).sort()), null]);
+	return markRaw([...Array.from(categories), null]);
 });
 
 export const customEmojisMap = new Map<string, Misskey.entities.EmojiSimple>();
