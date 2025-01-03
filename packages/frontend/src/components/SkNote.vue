@@ -1025,13 +1025,8 @@ function emitUpdReaction(emoji: string, delta: number) {
 }
 
 .skipRender {
-<<<<<<< HEAD
-	content-visibility: auto;
-	contain-intrinsic-size: 0 300px;
-=======
   content-visibility: auto;
   contain-intrinsic-size: 0 150px;
->>>>>>> stpv/stelpolva
 }
 
 .tip {
