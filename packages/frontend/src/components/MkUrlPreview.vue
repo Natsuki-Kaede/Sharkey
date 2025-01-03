@@ -43,14 +43,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</MkButton>
 	</div>
 </template>
-<template v-else-if="apNote && apExpanded">
-	<SkNoteSimple :note="apNote" :class="$style.linkNote"/>
+<!-- never compact -->
+<div v-else-if="theNote && apExpanded" :class="$style.linkNote">
+	<XNoteSimple :note="theNote" :class="$style.body"/>
 	<div :class="$style.action">
 		<MkButton :small="true" inline @click.stop="apExpanded = false">
 			<i class="ti ti-x"></i> {{ i18n.ts.close }}
 		</MkButton>
 	</div>
-</template>
+</div>
 <div v-else>
 	<component :is="self ? 'MkA' : 'a'" :class="[$style.link, { [$style.compact]: compact }]" :[attr]="self ? url.substring(local.length) : url" rel="nofollow noopener" :target="target" :title="url">
 		<div v-if="thumbnail && !sensitive" :class="$style.thumbnail" :style="defaultStore.state.dataSaver.urlPreview ? '' : `background-image: url('${thumbnail}')`">
@@ -86,7 +87,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<i class="ti ti-picture-in-picture"></i> {{ i18n.ts.openInWindow }}
 			</MkButton>
 		</div>
-		<div v-else-if="!apExpanded && apNote" :class="$style.action">
+		<div v-else-if="!apExpanded && theNote" :class="$style.action">
 			<MkButton :small="true" inline @click.stop="apExpanded = true">
 				<i class="ti ti-world-x"></i> {{ i18n.ts.expandTweet }}
 			</MkButton>
@@ -96,19 +97,25 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, onDeactivated, onUnmounted, ref } from 'vue';
-import * as Misskey from 'misskey-js';
+import { defineAsyncComponent, onDeactivated, onUnmounted, ref, watch } from 'vue';
 import SkNoteSimple from './SkNoteSimple.vue';
-import type { summaly } from '@misskey-dev/summaly';
 import { url as local } from '@@/js/config.js';
+import { versatileLang } from '@@/js/intl-const.js';
+import type { summaly } from '@misskey-dev/summaly';
 import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 import { deviceKind } from '@/scripts/device-kind.js';
 import MkButton from '@/components/MkButton.vue';
-import { versatileLang } from '@@/js/intl-const.js';
 import { transformPlayerUrl } from '@/scripts/player-url-transform.js';
 import { defaultStore } from '@/store.js';
-import { misskeyApi } from '@/scripts/misskey-api';
+import * as Misskey from 'misskey-js';
+import { misskeyApi } from '@/scripts/misskey-api.js';
+
+const XNoteSimple = defineAsyncComponent(() =>
+	(defaultStore.state.noteDesign === 'misskey') ? import('@/components/MkNoteSimple.vue') :
+	(defaultStore.state.noteDesign === 'sharkey') ? import('@/components/SkNoteSimple.vue') :
+	null
+);
 
 type SummalyResult = Awaited<ReturnType<typeof summaly>>;
 
@@ -116,10 +123,12 @@ const props = withDefaults(defineProps<{
 	url: string;
 	detail?: boolean;
 	compact?: boolean;
+	showAsQuote?: boolean;
 	showActions?: boolean;
 }>(), {
 	detail: false,
 	compact: false,
+	showAsQuote: false,
 	showActions: true,
 });
 
@@ -136,6 +145,7 @@ const thumbnail = ref<string | null>(null);
 const icon = ref<string | null>(null);
 const sitename = ref<string | null>(null);
 const sensitive = ref<boolean>(false);
+const activityPub = ref<string | null>(null);
 const player = ref({
 	url: null,
 	width: null,
@@ -147,11 +157,25 @@ const tweetExpanded = ref(props.detail);
 const embedId = `embed${Math.random().toString().replace(/\D/, '')}`;
 const tweetHeight = ref(150);
 const unknownUrl = ref(false);
-const apExpanded = ref(false);
-const apNote = ref<Misskey.entities.Note | null>(null);
+const apExpanded = ref(true);
+const theNote = ref<Misskey.entities.Note | null>(null);
 
 onDeactivated(() => {
 	playerEnabled.value = false;
+});
+
+watch(activityPub, async (uri) => {
+		if (!props.showAsQuote) return;
+		if (!uri) return;
+		try {
+			const response = await misskeyApi('ap/show', { uri });
+			if (response.type !== 'Note') return;
+			theNote.value = response['object'];
+		} catch (err) {
+			if (_DEV_) {
+				console.error(`failed to extract note for preview of ${uri}`, err);
+			}
+		}
 });
 
 const requestUrl = new URL(props.url);
@@ -196,19 +220,10 @@ window.fetch(`/url?url=${encodeURIComponent(requestUrl.href)}&lang=${versatileLa
 		sitename.value = info.sitename;
 		player.value = info.player;
 		sensitive.value = info.sensitive ?? false;
-
-		if (info.activityPub) {
-			misskeyApi('ap/show', {
-				uri: info.activityPub,
-			}).then(res => {
-				if (res.type === 'Note') {
-					apNote.value = res.object;
-				}
-			});
-		}
+		activityPub.value = info.activityPub;
 	});
 
-function adjustTweetHeight(message: any) {
+function adjustTweetHeight(message: MessageEvent) {
 	if (message.origin !== 'https://platform.twitter.com') return;
 	const embed = message.data?.['twttr.embed'];
 	if (embed?.method !== 'twttr.private.resize') return;
@@ -221,14 +236,16 @@ function openPlayer(): void {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkYouTubePlayer.vue')), {
 		url: requestUrl.href,
 	}, {
-		// TODO
+		closed: () => {
+			dispose();
+		},
 	});
 }
 
-(window as any).addEventListener('message', adjustTweetHeight);
+window.addEventListener('message', adjustTweetHeight);
 
 onUnmounted(() => {
-	(window as any).removeEventListener('message', adjustTweetHeight);
+	window.removeEventListener('message', adjustTweetHeight);
 });
 </script>
 
@@ -247,7 +264,7 @@ onUnmounted(() => {
 	height: 1.5em;
 	padding: 0;
 	margin: 0;
-	color: var(--fg);
+	color: var(--MI_THEME-fg);
 	background: rgba(128, 128, 128, 0.2);
 	opacity: 0.7;
 
@@ -266,9 +283,9 @@ onUnmounted(() => {
 
 .linkNote {
 	margin-top: 5px;
-	padding: 16px;
-	border: solid 1px var(--renote);
-	border-radius: var(--radius-sm);
+	// padding: 5px;
+	border: solid 1px var(--MI_THEME-renote);
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 }
 
@@ -276,8 +293,8 @@ onUnmounted(() => {
 	position: relative;
 	display: block;
 	font-size: 14px;
-	box-shadow: 0 0 0 1px var(--divider);
-	border-radius: var(--radius-sm);
+	box-shadow: 0 0 0 1px var(--MI_THEME-divider);
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 
 	&:hover {
@@ -306,7 +323,7 @@ onUnmounted(() => {
 	height: 100%;
 	background-position: center;
 	background-size: cover;
-	background-color: var(--bg);
+	background-color: var(--MI_THEME-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -353,7 +370,6 @@ onUnmounted(() => {
 .siteName {
 	display: inline-block;
 	margin: 0;
-	color: var(--urlPreviewInfo);
 	font-size: 0.8em;
 	line-height: 16px;
 	vertical-align: top;

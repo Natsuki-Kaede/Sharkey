@@ -25,6 +25,7 @@ import type { ReactionService } from '../ReactionService.js';
 import type { UserEntityService } from './UserEntityService.js';
 import type { DriveFileEntityService } from './DriveFileEntityService.js';
 
+// is-renote.tsとよしなにリンク
 function isPureRenote(note: MiNote): note is MiNote & { renoteId: MiNote['id']; renote: MiNote } {
 	return (
 		note.renote != null &&
@@ -109,52 +110,86 @@ export class NoteEntityService implements OnModuleInit {
 	}
 
 	@bindThis
-	private async hideNote(packedNote: Packed<'Note'>, meId: MiUser['id'] | null) {
+	private async hideNote(packedNote: Packed<'Note'>, meId: MiUser['id'] | null): Promise<void> {
+		// FIXME: このvisibility変更処理が当関数にあるのは若干不自然かもしれない(関数名を treatVisibility とかに変える手もある)
+		if (packedNote.visibility === 'public' || packedNote.visibility === 'home') {
+			const followersOnlyBefore = packedNote.user.makeNotesFollowersOnlyBefore;
+			if ((followersOnlyBefore != null)
+				&& (
+					(followersOnlyBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() > 0 - (followersOnlyBefore * 1000)))
+					|| (followersOnlyBefore > 0 && (new Date(packedNote.createdAt).getTime() < followersOnlyBefore * 1000))
+				)
+			) {
+				packedNote.visibility = 'followers';
+			}
+		}
+
+		if (meId === packedNote.userId) return;
+
 		// TODO: isVisibleForMe を使うようにしても良さそう(型違うけど)
 		let hide = false;
 
-		// visibility が specified かつ自分が指定されていなかったら非表示
-		if (packedNote.visibility === 'specified') {
-			if (meId == null) {
-				hide = true;
-			} else if (meId === packedNote.userId) {
-				hide = false;
-			} else {
-				// 指定されているかどうか
-				const specified = packedNote.visibleUserIds!.some((id: any) => meId === id);
+		if (packedNote.user.requireSigninToViewContents && meId == null) {
+			hide = true;
+		}
 
-				if (specified) {
+		if (!hide) {
+			const hiddenBefore = packedNote.user.makeNotesHiddenBefore;
+			if ((hiddenBefore != null)
+				&& (
+					(hiddenBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() > 0 - (hiddenBefore * 1000)))
+					|| (hiddenBefore > 0 && (new Date(packedNote.createdAt).getTime() < hiddenBefore * 1000))
+				)
+			) {
+				hide = true;
+			}
+		}
+
+		// visibility が specified かつ自分が指定されていなかったら非表示
+		if (!hide) {
+			if (packedNote.visibility === 'specified') {
+				if (meId == null) {
+					hide = true;
+				} else if (meId === packedNote.userId) {
 					hide = false;
 				} else {
-					hide = true;
+					// 指定されているかどうか
+					const specified = packedNote.visibleUserIds!.some(id => meId === id);
+
+					if (!specified) {
+						hide = true;
+					}
 				}
 			}
 		}
 
 		// visibility が followers かつ自分が投稿者のフォロワーでなかったら非表示
-		if (packedNote.visibility === 'followers') {
-			if (meId == null) {
-				hide = true;
-			} else if (meId === packedNote.userId) {
-				hide = false;
-			} else if (packedNote.reply && (meId === packedNote.reply.userId)) {
-				// 自分の投稿に対するリプライ
-				hide = false;
-			} else if (packedNote.mentions && packedNote.mentions.some(id => meId === id)) {
-				// 自分へのメンション
-				hide = false;
-			} else if (packedNote.renote && (meId === packedNote.renote.userId)) {
-				hide = false;
-			} else {
-				// フォロワーかどうか
-				const isFollowing = await this.followingsRepository.exists({
-					where: {
-						followeeId: packedNote.userId,
-						followerId: meId,
-					},
-				});
+		if (!hide) {
+			if (packedNote.visibility === 'followers') {
+				if (meId == null) {
+					hide = true;
+				} else if (meId === packedNote.userId) {
+					hide = false;
+				} else if (packedNote.reply && (meId === packedNote.reply.userId)) {
+					// 自分の投稿に対するリプライ
+					hide = false;
+				} else if (packedNote.mentions && packedNote.mentions.some(id => meId === id)) {
+					// 自分へのメンション
+					hide = false;
+				} else if (packedNote.renote && (meId === packedNote.renote.userId)) {
+					hide = false;
+				} else {
+					// フォロワーかどうか
+					// TODO: 当関数呼び出しごとにクエリが走るのは重そうだからなんとかする
+					const isFollowing = await this.followingsRepository.exists({
+						where: {
+							followeeId: packedNote.userId,
+							followerId: meId,
+						},
+					});
 
-				hide = !isFollowing;
+					hide = !isFollowing;
+				}
 			}
 		}
 
@@ -186,6 +221,7 @@ export class NoteEntityService implements OnModuleInit {
 			packedNote.reactionEmojis = {};
 			packedNote.reactions = {};
 			packedNote.isHidden = true;
+			// TODO: hiddenReason みたいなのを提供しても良さそう
 		}
 	}
 
@@ -280,7 +316,7 @@ export class NoteEntityService implements OnModuleInit {
 				return true;
 			} else {
 				// 指定されているかどうか
-				return note.visibleUserIds.some((id: any) => meId === id);
+				return note.visibleUserIds.some(id => meId === id);
 			}
 		}
 

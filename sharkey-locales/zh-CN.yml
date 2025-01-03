@@ -174,3 +174,12 @@ _initialTutorial:
   _reaction:
     letsTryReacting: "回应可以通过点击帖子中的「{reaction}」按钮来添加。试着给这个示例帖子添加一个回应！"
     reactDone: "通过按下「{undo}」按钮，可以取消已经添加的回应"
+
+blockingYou: "拉黑了您"
+_signup:
+  approvalPending: "您的账户已经创建，正在等待批准"
+  reasonInfo: "请填写您想加入此实例的原因"
+schedulePost: "定时发帖"
+schedulePostList: "预定的帖子列表"
+postOn: "发帖于…"
+scheduledNotes: "预定的帖子"

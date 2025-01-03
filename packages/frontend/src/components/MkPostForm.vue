@@ -61,24 +61,25 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkAcct :user="u"/>
 				<button class="_button" style="padding: 4px 8px;" @click="removeVisibleUser(u)"><i class="ti ti-x"></i></button>
 			</span>
-			<button class="_buttonPrimary" style="padding: 4px; border-radius: var(--radius-sm);" @click="addVisibleUser"><i class="ti ti-plus ti-fw"></i></button>
+			<button class="_buttonPrimary" style="padding: 4px; border-radius: var(--MI-radius-sm);" @click="addVisibleUser"><i class="ti ti-plus ti-fw"></i></button>
 		</div>
 	</div>
 	<MkInfo v-if="hasNotSpecifiedMentions" warn :class="$style.hasNotSpecifiedMentions">{{ i18n.ts.notSpecifiedMentionWarning }} - <button class="_textButton" @click="addMissingMention()">{{ i18n.ts.add }}</button></MkInfo>
 	<div v-show="useCw" :class="$style.cwFrame">
-		<textarea ref="cwInputEl" v-model="cw" :class="$style.cw" :placeholder="i18n.ts.annotation" @keydown="onKeydown"/>
+		<textarea ref="cwInputEl" v-model="cw" :class="$style.cw" :placeholder="i18n.ts.annotation" @keydown="onKeydown" @keyup="onKeyup" @compositionend="onCompositionEnd"/>
 		<div v-if="maxCwLength - cwLength < 100" :class="['_acrylic', $style.textCount, { [$style.textOver]: cwLength > maxCwLength }]">{{ maxCwLength - cwLength }}</div>
 	</div>
 	<div :class="[$style.textOuter, { [$style.withCw]: useCw }]">
 		<div v-if="channel" :class="$style.colorBar" :style="{ background: channel.color }"></div>
-		<textarea v-if="stpvAdvancedPostForm" v-model="prefixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFprefix" dir="auto" @keydown="onKeydown"/>
-		<textarea ref="textareaEl" v-model="text" :class="[$style.text]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="placeholder" data-cy-post-form-text dir="auto" @keydown="onKeydown" @paste="onPaste" @compositionupdate="onCompositionUpdate" @compositionend="onCompositionEnd"/>
-		<textarea v-if="stpvAdvancedPostForm" v-model="suffixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFsuffix" dir="auto" @keydown="onKeydown"/>
+		<textarea v-if="stpvAdvancedPostForm" v-model="prefixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFprefix" dir="auto" @keydown="onKeydown" @keyup="onKeyup"/>
+		<textarea ref="textareaEl" v-model="text" :class="[$style.text]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="placeholder" data-cy-post-form-text dir="auto" @keydown="onKeydown" @keyup="onKeyup" @paste="onPaste" @compositionupdate="onCompositionUpdate" @compositionend="onCompositionEnd"/>
+		<textarea v-if="stpvAdvancedPostForm" v-model="suffixText" :class="[$style.presuftext]" :disabled="posting || posted" :readonly="textAreaReadOnly" :placeholder="i18n.ts.stpvPFsuffix" dir="auto" @keydown="onKeydown" @keyup="onKeyup"/>
 		<div v-if="maxTextLength - textLength < 100" :class="['_acrylic', $style.textCount, { [$style.textOver]: textLength > maxTextLength }]">{{ maxTextLength - textLength }}</div>
 	</div>
 	<input v-show="withHashtags" ref="hashtagsInputEl" v-model="hashtags" :class="$style.hashtags" :placeholder="i18n.ts.hashtags" list="hashtags">
 	<XPostFormAttaches v-model="files" @detach="detachFile" @changeSensitive="updateFileSensitive" @changeName="updateFileName" @replaceFile="replaceFile"/>
 	<MkPollEditor v-if="poll" v-model="poll" @destroyed="poll = null"/>
+	<MkScheduleEditor v-if="scheduleNote" v-model="scheduleNote" @destroyed="scheduleNote = null"/>
 	<MkNotePreview v-if="showPreview" :class="$style.preview" :text="text" :files="files" :poll="poll ?? undefined" :useCw="useCw" :cw="cw" :user="postAccount ?? $i"/>
 	<div v-if="showingOptions" style="padding: 8px 16px;">
 	</div>
@@ -87,15 +88,16 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-tooltip="i18n.ts.attachFile" class="_button" :class="$style.footerButton" @click="chooseFileFrom"><i class="ti ti-photo-plus"></i></button>
 			<button v-tooltip="i18n.ts.poll" class="_button" :class="[$style.footerButton, { [$style.footerButtonActive]: poll }]" @click="togglePoll"><i class="ti ti-chart-arrows"></i></button>
 			<button v-tooltip="i18n.ts.useCw" class="_button" :class="[$style.footerButton, { [$style.footerButtonActive]: useCw }]" @click="useCw = !useCw"><i class="ti ti-eye-off"></i></button>
-			<button v-tooltip="i18n.ts.mention" class="_button" :class="$style.footerButton" @click="insertMention"><i class="ti ti-at"></i></button>
+			<!-- <button v-tooltip="i18n.ts.mention" class="_button" :class="$style.footerButton" @click="insertMention"><i class="ti ti-at"></i></button> -->
 			<button v-tooltip="i18n.ts.hashtags" class="_button" :class="[$style.footerButton, { [$style.footerButtonActive]: withHashtags }]" @click="withHashtags = !withHashtags"><i class="ti ti-hash"></i></button>
-			<button v-if="postFormActions.length > 0" v-tooltip="i18n.ts.plugins" class="_button" :class="$style.footerButton" @click="showActions"><i class="ti ti-plug"></i></button>
+			<!-- <button v-if="postFormActions.length > 0" v-tooltip="i18n.ts.plugins" class="_button" :class="$style.footerButton" @click="showActions"><i class="ti ti-plug"></i></button> -->
 			<button v-tooltip="i18n.ts.emoji" :class="['_button', $style.footerButton]" @click="insertEmoji"><i class="ti ti-mood-happy"></i></button>
 			<button v-if="showAddMfmFunction" v-tooltip="i18n.ts.addMfmFunction" :class="['_button', $style.footerButton]" @click="insertMfmFunction"><i class="ti ti-palette"></i></button>
+			<button v-tooltip="i18n.ts.otherSettings" :class="['_button', $style.footerButton]" @click="showOtherMenu"><i class="ti ti-dots"></i></button>
 		</div>
 		<div :class="$style.footerRight">
 			<button v-tooltip="i18n.ts.previewNoteText" class="_button" :class="[$style.footerButton, { [$style.previewButtonActive]: showPreview }]" @click="showPreview = !showPreview"><i class="ti ti-eye"></i></button>
-			<button v-tooltip="'MFM Cheatsheet'" class="_button" :class="$style.footerButton" @click="MFMWindow"><i class="ph-notebook ph-bold ph-lg"></i></button>
+			<!-- <button v-tooltip="'MFM Cheatsheet'" class="_button" :class="$style.footerButton" @click="MFMWindow"><i class="ph-notebook ph-bold ph-lg"></i></button> -->
 			<!--<button v-tooltip="i18n.ts.more" class="_button" :class="$style.footerButton" @click="showingOptions = !showingOptions"><i class="ti ti-dots"></i></button>-->
 		</div>
 	</footer>
@@ -113,6 +115,7 @@ import insertTextAtCursor from 'insert-text-at-cursor';
 import { toASCII } from 'punycode/';
 import autosize from 'autosize';
 import { host, url } from '@@/js/config.js';
+import type { MenuItem } from '@/types/menu.js';
 import MkNoteSimple from '@/components/MkNoteSimple.vue';
 import MkNotePreview from '@/components/MkNotePreview.vue';
 import XPostFormAttaches from '@/components/MkPostFormAttaches.vue';
@@ -136,25 +139,14 @@ import { miLocalStorage } from '@/local-storage.js';
 import { claimAchievement } from '@/scripts/achievements.js';
 import { emojiPicker } from '@/scripts/emoji-picker.js';
 import { mfmFunctionPicker } from '@/scripts/mfm-function-picker.js';
+import type { PostFormProps } from '@/types/post-form.js';
+import MkScheduleEditor from '@/components/MkScheduleEditor.vue';
 
 const $i = signinRequired();
 
 const modal = inject('modal');
 
-const props = withDefaults(defineProps<{
-	reply?: Misskey.entities.Note;
-	renote?: Misskey.entities.Note;
-	channel?: Misskey.entities.Channel; // TODO
-	mention?: Misskey.entities.User;
-	specified?: Misskey.entities.UserDetailed;
-	initialText?: string;
-	initialCw?: string;
-	initialVisibility?: (typeof Misskey.noteVisibilities)[number];
-	initialFiles?: Misskey.entities.DriveFile[];
-	initialLocalOnly?: boolean;
-	initialVisibleUsers?: Misskey.entities.UserDetailed[];
-	initialNote?: Misskey.entities.Note;
-	instant?: boolean;
+const props = withDefaults(defineProps<PostFormProps & {
 	fixed?: boolean;
 	autofocus?: boolean;
 	freezeAfterPosted?: boolean;
@@ -213,6 +205,10 @@ const recentHashtags = ref(JSON.parse(miLocalStorage.getItem('hashtags') ?? '[]'
 const imeText = ref('');
 const showingOptions = ref(false);
 const textAreaReadOnly = ref(false);
+const justEndedComposition = ref(false);
+const scheduleNote = ref<{
+	scheduledAt: number | null;
+} | null>(null);
 
 const draftKey = computed((): string => {
 	let key = props.channel ? `channel:${props.channel.id}` : '';
@@ -390,6 +386,7 @@ function watchForDraft() {
 	watch(localOnly, () => saveDraft());
 	watch(quoteId, () => saveDraft());
 	watch(reactionAcceptance, () => saveDraft());
+	watch(scheduleNote, () => saveDraft());
 }
 
 function MFMWindow() {
@@ -483,7 +480,7 @@ function replaceFile(file: Misskey.entities.DriveFile, newFile: Misskey.entities
 function upload(file: File, name?: string): void {
 	if (props.mock) return;
 
-	uploadFile(file, defaultStore.state.uploadFolder, name).then(res => {
+	uploadFile(file, defaultStore.state.uploadFolder ?? undefined, name).then(res => {
 		files.value.push(res);
 	});
 }
@@ -598,12 +595,19 @@ function clear() {
 	files.value = [];
 	poll.value = null;
 	quoteId.value = null;
+	scheduleNote.value = null;
 }
 
 function onKeydown(ev: KeyboardEvent) {
 	if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey) && canPost.value) post();
 
-	if (ev.key === 'Escape') emit('esc');
+	// justEndedComposition.value is for Safari, which keyDown occurs after compositionend.
+	// ev.isComposing is for another browsers.
+	if (ev.key === 'Escape' && !justEndedComposition.value && !ev.isComposing) emit('esc');
+}
+
+function onKeyup(ev: KeyboardEvent) {
+	justEndedComposition.value = false;
 }
 
 function onCompositionUpdate(ev: CompositionEvent) {
@@ -612,6 +616,7 @@ function onCompositionUpdate(ev: CompositionEvent) {
 
 function onCompositionEnd(ev: CompositionEvent) {
 	imeText.value = '';
+	justEndedComposition.value = true;
 }
 
 async function onPaste(ev: ClipboardEvent) {
@@ -748,6 +753,7 @@ function saveDraft() {
 			visibleUserIds: visibility.value === 'specified' ? visibleUsers.value.map(x => x.id) : undefined,
 			quoteId: quoteId.value,
 			reactionAcceptance: reactionAcceptance.value,
+			scheduleNote: scheduleNote.value,
 		},
 	};
 
@@ -855,6 +861,7 @@ async function post(ev?: MouseEvent) {
 		visibleUserIds: visibility.value === 'specified' ? visibleUsers.value.map(u => u.id) : undefined,
 		reactionAcceptance: reactionAcceptance.value,
 		editId: props.editId ? props.editId : undefined,
+		scheduleNote: scheduleNote.value ?? undefined,
 	};
 
 	if (withHashtags.value && hashtags.value && hashtags.value.trim() !== '') {
@@ -897,7 +904,7 @@ async function post(ev?: MouseEvent) {
 	}
 
 	posting.value = true;
-	misskeyApi(postData.editId ? 'notes/edit' : 'notes/create', postData, token).then(() => {
+	misskeyApi(postData.editId ? 'notes/edit' : (postData.scheduleNote ? 'notes/schedule/create' : 'notes/create'), postData, token).then(() => {
 		if (props.freezeAfterPosted) {
 			posted.value = true;
 		} else {
@@ -1020,8 +1027,8 @@ function showActions(ev: MouseEvent) {
 			action.handler({
 				text: text.value,
 				cw: cw.value,
-			}, (key, value: any) => {
-				if (typeof key !== 'string') return;
+			}, (key, value) => {
+				if (typeof key !== 'string' || typeof value !== 'string') return;
 				if (key === 'text') { text.value = value; }
 				if (key === 'cw') { useCw.value = value !== null; cw.value = value; }
 			});
@@ -1046,6 +1053,76 @@ function openAccountMenu(ev: MouseEvent) {
 			}
 		},
 	}, ev);
+}
+
+function toggleScheduleNote() {
+	if (scheduleNote.value) {
+		scheduleNote.value = null;
+	} else {
+		scheduleNote.value = {
+			scheduledAt: null,
+		};
+	}
+}
+
+function showOtherMenu(ev: MouseEvent) {
+	const menuItems: MenuItem[] = [];
+
+	if ($i.policies.scheduleNoteMax > 0) {
+		menuItems.push({
+			type: 'button',
+			text: i18n.ts.schedulePost,
+			icon: 'ti ti-calendar-time',
+			action: toggleScheduleNote,
+		}, {
+			type: 'button',
+			text: i18n.ts.schedulePostList,
+			icon: 'ti ti-calendar-event',
+			action: () => {
+				const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkSchedulePostListDialog.vue')), {}, {
+					closed: () => {
+						dispose();
+					},
+				});
+			},
+		});
+	}
+
+	menuItems.push({
+		type: 'divider',
+	}, {
+		type: 'button',
+		text: i18n.ts.mention,
+		icon: 'ti ti-at',
+		action: insertMention,
+	}, {
+		type: 'button',
+		text: 'MFM Cheatsheet',
+		icon: 'ph-notebook ph-bold ph-lg',
+		action: MFMWindow,
+	});
+
+	if (postFormActions.length > 0) {
+		menuItems.push({
+			type: 'divider',
+		}, ...postFormActions.map(action => ({
+			type: 'button' as const,
+			text: action.title,
+			icon: 'ti ti-plug',
+			action: () => {
+				action.handler({
+					text: text.value,
+					cw: cw.value,
+				}, (key, value) => {
+					if (typeof key !== 'string' || typeof value !== 'string') return;
+					if (key === 'text') { text.value = value; }
+					if (key === 'cw') { useCw.value = value !== ''; cw.value = value; }
+				});
+			},
+		})));
+	}
+
+	os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
 }
 
 onMounted(() => {
@@ -1118,6 +1195,11 @@ onMounted(() => {
 			}
 			quoteId.value = init.renote ? init.renote.id : null;
 			reactionAcceptance.value = init.reactionAcceptance;
+			if (init.isSchedule) {
+				scheduleNote.value = {
+					scheduledAt: new Date(init.createdAt).getTime(),
+				};
+			}
 		}
 
 		nextTick(() => watchForDraft());
@@ -1196,8 +1278,8 @@ defineExpose({
 	&:focus-visible {
 		outline: none;
 
-		.submitInner {
-			outline: 2px solid var(--fgOnAccent);
+		> .submitInner {
+			outline: 2px solid var(--MI_THEME-fgOnAccent);
 			outline-offset: -4px;
 		}
 	}
@@ -1211,14 +1293,14 @@ defineExpose({
 	}
 
 	&:not(:disabled):hover {
-		> .inner {
-			background: linear-gradient(90deg, hsl(from var(--accent) h s calc(l + 5)), hsl(from var(--accent) h s calc(l + 5)));
+		> .submitInner {
+			background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
 		}
 	}
 
 	&:not(:disabled):active {
-		> .inner {
-			background: linear-gradient(90deg, hsl(from var(--accent) h s calc(l + 5)), hsl(from var(--accent) h s calc(l + 5)));
+		> .submitInner {
+			background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
 		}
 	}
 }
@@ -1229,7 +1311,7 @@ defineExpose({
 	left: 12px;
 	width: 5px;
 	height: 100% ;
-	border-radius: var(--radius-ellipse);
+	border-radius: var(--MI-radius-ellipse);
 	pointer-events: none;
 }
 
@@ -1237,20 +1319,20 @@ defineExpose({
 	padding: 0 12px;
 	line-height: 34px;
 	font-weight: bold;
-	border-radius: var(--radius-sm);
+	border-radius: var(--MI-radius-sm);
 	min-width: 90px;
 	box-sizing: border-box;
-	color: var(--fgOnAccent);
-	background: linear-gradient(90deg, var(--buttonGradateA), var(--buttonGradateB));
+	color: var(--MI_THEME-fgOnAccent);
+	background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 }
 
 .headerRightItem {
 	margin: 0;
 	padding: 8px;
-	border-radius: var(--radius-sm);
+	border-radius: var(--MI-radius-sm);
 
 	&:hover {
-		background: var(--X5);
+		background: var(--MI_THEME-X5);
 	}
 
 	&:disabled {
@@ -1294,7 +1376,7 @@ defineExpose({
 
 .withQuote {
 	margin: 0 0 8px 0;
-	color: var(--accent);
+	color: var(--MI_THEME-accent);
 }
 
 .toSpecified {
@@ -1313,8 +1395,8 @@ defineExpose({
 .visibleUser {
 	margin-right: 14px;
 	padding: 8px 0 8px 8px;
-	border-radius: var(--radius-sm);
-	background: var(--X4);
+	border-radius: var(--MI-radius-sm);
+	background: var(--MI_THEME-X4);
 }
 
 .hasNotSpecifiedMentions {
@@ -1334,7 +1416,7 @@ defineExpose({
 	border: none;
 	border-radius: 0;
 	background: transparent;
-	color: var(--fg);
+	color: var(--MI_THEME-fg);
 	font-family: inherit;
 
 	&:focus {
@@ -1354,7 +1436,7 @@ defineExpose({
 .cwFrame {
 	z-index: 1;
 	padding-bottom: 8px;
-	border-bottom: solid 0.5px var(--divider);
+	border-bottom: solid 0.5px var(--MI_THEME-divider);
 
 	width: 100%;
 	position: relative;
@@ -1364,7 +1446,7 @@ defineExpose({
 	z-index: 1;
 	padding-top: 8px;
 	padding-bottom: 8px;
-	border-top: solid 0.5px var(--divider);
+	border-top: solid 0.5px var(--MI_THEME-divider);
 }
 
 .textOuter {
@@ -1390,8 +1472,8 @@ defineExpose({
 	right: 2px;
 	padding: 4px 6px;
 	font-size: .9em;
-	color: var(--warn);
-	border-radius: var(--radius-sm);
+	color: var(--MI_THEME-warn);
+	border-radius: var(--MI-radius-sm);
 	min-width: 1.6em;
 	text-align: center;
 
@@ -1431,19 +1513,19 @@ defineExpose({
 	font-size: 1em;
 	width: auto;
 	height: 100%;
-	border-radius: var(--radius-sm);
+	border-radius: var(--MI-radius-sm);
 
 	&:hover {
-		background: var(--X5);
+		background: var(--MI_THEME-X5);
 	}
 
 	&.footerButtonActive {
-		color: var(--accent);
+		color: var(--MI_THEME-accent);
 	}
 }
 
 .previewButtonActive {
-	color: var(--accent);
+	color: var(--MI_THEME-accent);
 }
 
 @container (max-width: 500px) {

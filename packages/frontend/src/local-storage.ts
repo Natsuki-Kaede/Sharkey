@@ -4,6 +4,7 @@
  */
 
 type KeysStpv =
+  'customFontFaceName'|
 	'defaultFontFace';
 
 export type Keys =

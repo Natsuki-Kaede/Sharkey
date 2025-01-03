@@ -31,6 +31,9 @@ _stpvPlus:
   fontType:
     label: Font Type
     caption: Select subfont for the font
+  customFont:
+    label: Custom Font...
+    caption: Select a font from your local font list
   softMutedUsers:
     label: User IDs soft muted on the timeline
     caption: Fill in the user IDs that can be found on Raw, one per line. At most 100 IDs, and any exceeded will be deleted.
@@ -49,6 +52,9 @@ _stpvPlus:
   combineRepliesQuotes:
     label: Combine quotes and replies
     caption: Display both quotes and replies on the post details page
+  disableTimeline:
+    label: Disable timeline
+    caption: "Disable {name} timeline"
 stpvMuteUser: "Soft mute notes in timeline"
 stpvUnmuteUser: "Don't soft mute notes in timeline"
 stpvMuteNote: "Soft mute this note later"
@@ -59,3 +65,4 @@ stpvReactionsStat: "Emoji Reactions Stats"
 stpvReactionsStatDescription: "Shows the the first 100 of emojis mostly reacted"
 stpvPFprefix: "prefix..."
 stpvPFsuffix: "...suffix"
+stpvWarnNoQueryLocalFonts: Oops! Your browser doesn't support the queryLocalFonts method, so please fill in the font name manually in the text box.

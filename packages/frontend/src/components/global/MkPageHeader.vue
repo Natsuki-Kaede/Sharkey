@@ -38,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<XTabs v-if="!narrow || hideTitle" :class="$style.tabs" :tab="tab" :tabs="tabs" :rootEl="el" @update:tab="key => emit('update:tab', key)" @tabClick="onTabClick"/>
 		</template>
 		<div v-if="(!thin_ && narrow && !hideTitle) || (actions && actions.length > 0)" :class="$style.buttonsRight">
-			<template v-for="action in actions">
+			<template v-for="action in actions" :key="action.title">
 				<button v-tooltip.noDelay="action.text" class="_button" :class="[$style.button, { [$style.highlighted]: action.highlighted }]" @click.stop="action.handler" @touchstart="preventDrag"><i :class="action.icon"></i></button>
 			</template>
 		</div>
@@ -116,7 +116,7 @@ function goBack(): void {
 }
 
 const calcBg = () => {
-	const rawBg = 'var(--bg)';
+	const rawBg = 'var(--MI_THEME-bg)';
 	const tinyBg = tinycolor(rawBg.startsWith('var(') ? getComputedStyle(document.documentElement).getPropertyValue(rawBg.slice(4, -1)) : rawBg);
 	tinyBg.setAlpha(0.85);
 	bg.value = tinyBg.toRgbString();
@@ -147,9 +147,9 @@ onUnmounted(() => {
 
 <style lang="scss" module>
 .root {
-	-webkit-backdrop-filter: var(--blur, blur(15px));
-	backdrop-filter: var(--blur, blur(15px));
-	border-bottom: solid 0.5px var(--divider);
+	-webkit-backdrop-filter: var(--MI-blur, blur(15px));
+	backdrop-filter: var(--MI-blur, blur(15px));
+	border-bottom: solid 0.5px var(--MI_THEME-divider);
 	width: 100%;
 }
 
@@ -162,7 +162,7 @@ onUnmounted(() => {
 .upper {
 	--height: 50px;
 	display: flex;
-	gap: var(--margin);
+	gap: var(--MI-margin);
 	height: var(--height);
 
 	.tabs:first-child {
@@ -240,14 +240,14 @@ onUnmounted(() => {
 	width: calc(var(--height) - (var(--margin)));
 	box-sizing: border-box;
 	position: relative;
-	border-radius: var(--radius-xs);
+	border-radius: var(--MI-radius-xs);
 
 	&:hover {
 		background: rgba(0, 0, 0, 0.05);
 	}
 
 	&.highlighted {
-		color: var(--accent);
+		color: var(--MI_THEME-accent);
 	}
 }
 

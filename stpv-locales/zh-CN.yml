@@ -28,6 +28,9 @@ _stpvPlus:
   fontType:
     label: 字体属性
     caption: 选择字体的子属性
+  customFont:
+    label: 自定义字体…
+    caption: 从您的本地字体列表中选择字体
   softMutedUsers:
     label: 在时间线上折叠的用户 ID
     caption: 填写从 Raw 上可以看到的用户 ID，一行一个。最多不能超过100个，超出的部分会被自动删除。
@@ -46,6 +49,9 @@ _stpvPlus:
   combineRepliesQuotes:
     label: 合并引用和回复
     caption: 在帖子详细页同时显示引用和回复
+  disableTimeline:
+    label: 禁用时间线
+    caption: "禁用 {name} 时间线"
 stpvMuteUser: "在时间线上折叠该用户的帖子"
 stpvUnmuteUser: "在时间线上恢复显示该用户的帖子"
 stpvMuteNote: "以后在时间线上折叠"
@@ -56,3 +62,4 @@ stpvReactionsStat: 表情回应统计图
 stpvReactionsStatDescription: 显示了你发布的前100多emoji的数量
 stpvPFprefix: "前缀..."
 stpvPFsuffix: "...后缀"
+stpvWarnNoQueryLocalFonts: 啊哦! 你的浏览器不支持 queryLocalFonts 方法，因此请在文本框中手动填写字体名。

@@ -21,3 +21,7 @@ html.default-font-arial {
 html.default-font-times {
 	font-family: 'sharkey-theme-font-face', 'Times New Roman', Times, serif;
 }
+
+html.default-font-custom {
+	font-family: var(--STPV_custom-fontface);
+}

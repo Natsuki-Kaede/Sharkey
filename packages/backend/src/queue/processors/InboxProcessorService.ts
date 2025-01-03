@@ -7,7 +7,6 @@ import { URL } from 'node:url';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import httpSignature from '@peertube/http-signature';
 import * as Bull from 'bullmq';
-import { AbortError } from 'node-fetch';
 import type Logger from '@/logger.js';
 import { FederatedInstanceService } from '@/core/FederatedInstanceService.js';
 import { FetchInstanceMetadataService } from '@/core/FetchInstanceMetadataService.js';
@@ -60,7 +59,7 @@ export class InboxProcessorService implements OnApplicationShutdown {
 		private queueLoggerService: QueueLoggerService,
 	) {
 		this.logger = this.queueLoggerService.logger.createSubLogger('inbox');
-		this.updateInstanceQueue = new CollapsedQueue(60 * 1000 * 5, this.collapseUpdateInstanceJobs, this.performUpdateInstance);
+		this.updateInstanceQueue = new CollapsedQueue(process.env.NODE_ENV !== 'test' ? 60 * 1000 * 5 : 0, this.collapseUpdateInstanceJobs, this.performUpdateInstance);
 	}
 
 	@bindThis
@@ -198,21 +197,27 @@ export class InboxProcessorService implements OnApplicationShutdown {
 			delete activity.id;
 		}
 
-		// Update stats
-		this.federatedInstanceService.fetch(authUser.user.host).then(i => {
+		this.apRequestChart.inbox();
+		this.federationChart.inbox(authUser.user.host);
+
+		// Update instance stats
+		process.nextTick(async () => {
+			const i = await (this.meta.enableStatsForFederatedInstances
+				? this.federatedInstanceService.fetchOrRegister(authUser.user.host)
+				: this.federatedInstanceService.fetch(authUser.user.host));
+
+			if (i == null) return;
+
 			this.updateInstanceQueue.enqueue(i.id, {
 				latestRequestReceivedAt: new Date(),
 				shouldUnsuspend: i.suspensionState === 'autoSuspendedForNotResponding',
 			});
 
-			this.fetchInstanceMetadataService.fetchInstanceMetadata(i);
-
-			this.apRequestChart.inbox();
-			this.federationChart.inbox(i.host);
-
 			if (this.meta.enableChartsForFederatedInstances) {
 				this.instanceChart.requestReceived(i.host);
 			}
+
+			this.fetchInstanceMetadataService.fetchInstanceMetadata(i);
 		});
 
 		// アクティビティを処理
@@ -242,16 +247,8 @@ export class InboxProcessorService implements OnApplicationShutdown {
 				}
 			}
 
-			if (e instanceof StatusError) {
-				if (e.isRetryable) {
-					return `temporary error ${e.statusCode}`;
-				} else {
-					return `skip: permanent error ${e.statusCode}`;
-				}
-			}
-
-			if (e instanceof AbortError) {
-				return 'request aborted';
+			if (e instanceof StatusError && !e.isRetryable) {
+				return `skip: permanent error ${e.statusCode}`;
 			}
 
 			throw e;

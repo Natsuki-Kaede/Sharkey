@@ -58,7 +58,7 @@ function noteclick(id: string) {
 	font-size: 0.95em;
 
 	&:hover, &:focus-within {
-		background: var(--panelHighlight);
+		background: var(--MI_THEME-panelHighlight);
 		transition: background .2s;
 	}
 }
@@ -69,9 +69,9 @@ function noteclick(id: string) {
 	margin: 0 10px 0 0;
 	width: 34px;
 	height: 34px;
-	border-radius: var(--radius-sm);
+	border-radius: var(--MI-radius-sm);
 	position: sticky !important;
-	top: calc(16px + var(--stickyTop, 0px));
+	top: calc(16px + var(--MI-stickyTop, 0px));
 	left: 0;
 }
 

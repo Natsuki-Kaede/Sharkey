@@ -22,6 +22,7 @@ const fontList = [
 	{ id: 'yishanbeizhuan', name: '峄山碑篆体' },
 	{ id: 'chongxiseal', name: '崇羲篆體' },
 	{ id: 'system-ui', name: i18n.ts.useSystemFont },
+	{ id: 'custom', name: i18n.ts._stpvPlus.customFont.label },
 ];
 
 function getFontOptionsList(val: string): { id: string, name: string, default?: boolean }[] {
@@ -68,7 +69,7 @@ export function getDefaultFontSettings() {
 	const fontFaceType = ref(def_arr?.[1] ?? '');
 	const availableTypes = computed(() => getFontOptionsList(fontFace.value));
 
-	async function setDafaultFont() {
+	async function setDefaultFont() {
 		for (const klass of [...document.documentElement.classList.values()]) {
 			if (klass.startsWith('default-font-')) {
 				document.documentElement.classList.remove(klass);
@@ -86,11 +87,11 @@ export function getDefaultFontSettings() {
 		if (optionsList.length !== 0) {
 			fontFaceType.value = optionsList.find((v) => v.default)?.id ?? '';
 		} else {
-			setDafaultFont();
+			setDefaultFont();
 		}
 	});
 	watch(fontFaceType, () => {
-		setDafaultFont();
+		setDefaultFont();
 	});
 
 	return ref({
@@ -98,6 +99,7 @@ export function getDefaultFontSettings() {
 		fontFace,
 		fontFaceType,
 		availableTypes,
+		update: () => setDefaultFont(),
 	}) as Ref<{
 		fontList: {
 			id: string;
@@ -110,5 +112,6 @@ export function getDefaultFontSettings() {
 			name: string;
 			default?: boolean;
 		}[];
+		update: () => void,
 	}>;
 }

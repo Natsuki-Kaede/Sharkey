@@ -1,3 +1,15 @@
+export const TimelineSwipeKeys = [
+	'home',
+	'local',
+	'social',
+	'bubble',
+	'global',
+	'following',
+	'lists',
+	'antennas',
+	'channel',
+] as const;
+
 export const stpvDefaultStoreExtension = {
 	enableRenderingOptimization: {
 		where: 'device',
@@ -42,5 +54,9 @@ export const stpvDefaultStoreExtension = {
 	stpvCombineRepliesQuotes: {
 		where: 'device',
 		default: false,
+	},
+	stpvDisabledTimelineSwipes: {
+		where: 'device',
+		default: [] as (typeof TimelineSwipeKeys[number])[],
 	},
 } as const;

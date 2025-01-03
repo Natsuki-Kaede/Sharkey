@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-ripple="canToggle"
 	class="_button"
 	:class="[$style.root, { [$style.reacted]: isReacted, [$style.canToggle]: canToggle, [$style.small]: defaultStore.state.reactionsDisplaySize === 'small', [$style.large]: defaultStore.state.reactionsDisplaySize === 'large' }]"
-	@click.stop="toggleReaction()"  
+	@click.stop="toggleReaction()"
 	@contextmenu.prevent.stop="menu"
 >
 	<MkReactionIcon :class="defaultStore.state.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="note.reactionEmojis[reaction.substring(1, reaction.length - 1)]"/>
@@ -94,9 +94,9 @@ let lastCount = props.count;
 
 async function toggleReaction() {
 	if (!canToggle.value) return;
-	
+
 	const oldReaction = props.note.myReaction;
-	
+
 	if (isReacted.value) {
 		const confirm = await os.confirm({
 			type: 'warning',
@@ -145,7 +145,7 @@ async function toggleReaction() {
 		noteId: props.note.id,
 		reaction: baseReaction.value,
 	});
-	
+
 	if (props.note.text && props.note.text.length > 100 && (Date.now() - new Date(props.note.createdAt).getTime() < 1000 * 3)) {
 		claimAchievement('reactWithoutRead');
 	}
@@ -198,10 +198,10 @@ onBeforeMount(() => {
 if (!mock) {
 	useTooltip(buttonEl, async (showing) => {
     const allVariants = new Set([props.reaction]);
-    
+
     if (reactionInfo.value.hasNative) {
       allVariants.add(reactionInfo.value.base);
-      
+
       Object.keys(props.note.reactions).forEach(reaction => {
         const info = getReactionInfo(reaction);
         if (info.hasNative && info.base === reactionInfo.value.base) {
@@ -220,7 +220,7 @@ if (!mock) {
     );
 
     const allReactions = await Promise.all(reactionPromises);
-    
+
     const allUsers = [...new Map(
       allReactions.flat().map(x => [x.user.id, x.user])
     ).values()];
@@ -245,12 +245,12 @@ if (!mock) {
 	margin: 2px;
 	padding: 0 6px;
 	font-size: 1.5em;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-sm);
 	align-items: center;
 	justify-content: center;
 
 	&.canToggle {
-		background: var(--buttonBg);
+		background: var(--MI_THEME-buttonBg);
 
 		&:hover {
 			background: rgba(0, 0, 0, 0.1);
@@ -264,7 +264,7 @@ if (!mock) {
 	&.small {
 		height: 32px;
 		font-size: 1em;
-		border-radius: 4px;
+		border-radius: var(--MI-radius-xs);
 
 		> .count {
 			font-size: 0.9em;
@@ -275,7 +275,7 @@ if (!mock) {
 	&.large {
 		height: 52px;
 		font-size: 2em;
-		border-radius: 8px;
+		border-radius: var(--MI-radius-sm);
 
 		> .count {
 			font-size: 0.6em;
@@ -284,12 +284,12 @@ if (!mock) {
 	}
 
 	&.reacted, &.reacted:hover {
-		background: var(--accentedBg);
-		color: var(--accent);
-		box-shadow: 0 0 0 1px var(--accent) inset;
+		background: var(--MI_THEME-accentedBg);
+		color: var(--MI_THEME-accent);
+		box-shadow: 0 0 0 1px var(--MI_THEME-accent) inset;
 
 		> .count {
-			color: var(--accent);
+			color: var(--MI_THEME-accent);
 		}
 
 		> .icon {

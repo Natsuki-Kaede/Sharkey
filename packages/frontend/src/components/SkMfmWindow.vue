@@ -545,13 +545,12 @@ $[border.radius=10 a rounded border]`,
 		> .title {
 			position: sticky;
 			z-index: 1;
-			top: var(--stickyTop, 0px);
+			top: var(--MI-stickyTop, 0px);
 			padding: 16px;
 			font-weight: bold;
-			font-size: 1.1em;
-			-webkit-backdrop-filter: var(--blur, blur(10px));
-			backdrop-filter: var(--blur, blur(10px));
-			background-color: var(--X16);
+			-webkit-backdrop-filter: var(--MI-blur, blur(10px));
+			backdrop-filter: var(--MI-blur, blur(10px));
+			background-color: var(--MI_THEME-X16);
 		}
 
 		> .content {
@@ -562,7 +561,7 @@ $[border.radius=10 a rounded border]`,
 			}
 
 			> .preview {
-				border-top: solid 0.5px var(--divider);
+				border-top: solid 0.5px var(--MI_THEME-divider);
 				padding: 16px;
 			}
 		}

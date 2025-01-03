@@ -38,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					ref="renoteButton"
 					class="_button"
 					:class="$style.noteFooterButton"
-					:style="renoted ? 'color: var(--accent) !important;' : ''"
+					:style="renoted ? 'color: var(--MI_THEME-accent) !important;' : ''"
 					@mousedown="renoted ? undoRenote() : boostVisibility()"
 				>
 					<i class="ph-rocket-launch ph-bold ph-lg"></i>
@@ -107,7 +107,8 @@ import { $i } from '@/account.js';
 import { userPage } from '@/filters/user.js';
 import { checkWordMute } from '@/scripts/check-word-mute.js';
 import { defaultStore } from '@/store.js';
-import { pleaseLogin } from '@/scripts/please-login.js';
+import { host } from '@@/js/config.js';
+import { pleaseLogin, type OpenOnRemoteOptions } from '@/scripts/please-login.js';
 import { showMovedDialog } from '@/scripts/show-moved-dialog.js';
 import MkRippleEffect from '@/components/MkRippleEffect.vue';
 import { reactionPicker } from '@/scripts/reaction-picker.js';
@@ -171,6 +172,11 @@ const isRenote = (
 	props.note.poll == null
 );
 
+const pleaseLoginContext = computed<OpenOnRemoteOptions>(() => ({
+	type: 'lookup',
+	url: `https://${host}/notes/${appearNote.value.id}`,
+}));
+
 async function addReplyTo(replyNote: Misskey.entities.Note) {
 	replies.value.unshift(replyNote);
 	appearNote.value.repliesCount += 1;
@@ -202,7 +208,7 @@ function focus() {
 }
 
 function reply(viaKeyboard = false): void {
-	pleaseLogin();
+	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 	os.post({
 		reply: props.note,
@@ -214,7 +220,7 @@ function reply(viaKeyboard = false): void {
 }
 
 function react(viaKeyboard = false): void {
-	pleaseLogin();
+	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 	sound.playMisskeySfx('reaction');
 	if (props.note.reactionAcceptance === 'likeOnly' || stpvDisableReactions.value) {
@@ -248,7 +254,7 @@ function react(viaKeyboard = false): void {
 }
 
 function like(): void {
-	pleaseLogin();
+	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 	sound.playMisskeySfx('reaction');
 	misskeyApi('notes/like', {
@@ -307,8 +313,8 @@ function boostVisibility() {
 	}
 }
 
-function renote(visibility: Visibility, localOnly = false) {
-	pleaseLogin();
+function renote(visibility: Visibility, localOnly: boolean = false) {
+	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 
 	if (appearNote.value.channel) {
@@ -353,7 +359,7 @@ function renote(visibility: Visibility, localOnly = false) {
 }
 
 function quote() {
-	pleaseLogin();
+	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 
 	if (appearNote.value.channel) {
@@ -433,7 +439,7 @@ if (props.detail) {
 	padding: 28px 32px;
 	position: relative;
 
-	--reply-indent: calc(.5 * var(--avatar));
+	--reply-indent: calc(.5 * var(--MI-avatar));
 
 	&.children {
 		padding: 10px 0 0 8px;
@@ -441,16 +447,16 @@ if (props.detail) {
 
 	&.isReply {
 		/* @link https://utopia.fyi/clamp/calculator?a=450,580,26—36 */
-		--avatar: clamp(26px, -8.6154px + 7.6923cqi, 36px);
+		--MI-avatar: clamp(26px, -8.6154px + 7.6923cqi, 36px);
 	}
 }
 
 .line {
 	position: absolute;
-	left: calc(32px + .5 * var(--avatar));
+	left: calc(32px + .5 * var(--MI-avatar));
 	// using solid instead of dotted, stylelistic choice
-	border-left: var(--thread-width) solid var(--thread);
-	top: calc(28px + var(--avatar)); // 28px of .root padding, plus 58px of avatar height (see SkNote)
+	border-left: var(--MI-thread-width) solid var(--MI_THEME-thread);
+	top: calc(28px + var(--MI-avatar)); // 28px of .root padding, plus 58px of avatar height (see SkNote)
 	bottom: -28px;
 }
 
@@ -475,8 +481,8 @@ if (props.detail) {
 		right: -12px;
 		left: -12px;
 		bottom: -12px;
-		background: var(--panelHighlight);
-		border-radius: var(--radius);
+		background: var(--MI_THEME-panelHighlight);
+		border-radius: var(--MI-radius);
 		opacity: 0;
 		transition: opacity .2s, background .2s;
 		z-index: -1;
@@ -494,7 +500,7 @@ if (props.detail) {
 	left: 8px;
 	width: 5px;
 	height: calc(100% - 8px);
-	border-radius: var(--radius-ellipse);
+	border-radius: var(--MI-radius-ellipse);
 	pointer-events: none;
 }
 
@@ -502,9 +508,9 @@ if (props.detail) {
 	flex-shrink: 0;
 	display: block;
 	margin: 0 14px 0 0;
-	width: var(--avatar);
-	height: var(--avatar);
-	border-radius: var(--radius-sm);
+	width: var(--MI-avatar);
+	height: var(--MI-avatar);
+	border-radius: var(--MI-radius-sm);
 }
 
 .body {
@@ -512,9 +518,10 @@ if (props.detail) {
 	min-width: 0;
 }
 
-.content {
-	overflow: hidden;
-}
+// for sticky showless button
+// .content {
+// 	overflow: hidden;
+// }
 
 .text {
 	margin: 0;
@@ -532,12 +539,12 @@ if (props.detail) {
 	opacity: 0.7;
 
 	&:hover {
-		color: var(--fgHighlighted);
+		color: var(--MI_THEME-fgHighlighted);
 	}
 }
 // Responsible for Reply borders 448 and 508
 .reply, .more {
-	//border-left: solid 0.5px var(--divider);
+	//border-left: solid 0.5px var(--MI_THEME-divider);
 	margin-top: 10px;
 }
 
@@ -548,11 +555,11 @@ if (props.detail) {
 @container (max-width: 580px) {
 	.root {
 		padding: 28px 26px 0;
-		--avatar: 46px;
+		--MI-avatar: 46px;
 	}
 
 	.line {
-		left: calc(26px + .5 * var(--avatar));
+		left: calc(26px + .5 * var(--MI-avatar));
 	}
 }
 
@@ -562,8 +569,8 @@ if (props.detail) {
 	}
 
 	.line {
-		top: calc(23px + var(--avatar));
-		left: calc(25px + .5 * var(--avatar));
+		top: calc(23px + var(--MI-avatar));
+		left: calc(25px + .5 * var(--MI-avatar));
 	}
 }
 
@@ -581,7 +588,7 @@ if (props.detail) {
 	opacity: 0.7;
 
 	&.reacted {
-		color: var(--accent);
+		color: var(--MI_THEME-accent);
 	}
 }
 
@@ -598,7 +605,7 @@ if (props.detail) {
 }
 
 .reply, .more {
-	//border-left: solid 0.5px var(--divider);
+	//border-left: solid 0.5px var(--MI_THEME-divider);
 	margin-top: 10px;
 }
 
@@ -612,23 +619,23 @@ if (props.detail) {
 	}
 
 	.line {
-		top: calc(22px + var(--avatar));
-		left: calc(24px + .5 * var(--avatar));
+		top: calc(22px + var(--MI-avatar));
+		left: calc(24px + .5 * var(--MI-avatar));
 	}
 }
 
 @container (max-width: 450px) {
 	.root {
-		--avatar: 44px;
+		--MI-avatar: 44px;
 	}
 }
 
 .muted {
 	text-align: center;
 	padding: 8px !important;
-	border: 1px solid var(--divider);
+	border: 1px solid var(--MI_THEME-divider);
 	margin: 8px 8px 0 8px;
-	border-radius: var(--radius-sm);
+	border-radius: var(--MI-radius-sm);
 }
 
 // avatar container with line
@@ -640,7 +647,7 @@ if (props.detail) {
 .threadLine {
 	width: 0;
 	flex-grow: 1;
-	border-left: var(--thread-width) solid var(--thread);
+	border-left: var(--MI-thread-width) solid var(--MI_THEME-thread);
 	margin-left: var(--reply-indent);
 }
 
@@ -649,10 +656,10 @@ if (props.detail) {
 }
 
 .reply:not(:last-child) {
-	border-left: var(--thread-width) solid var(--thread);
+	border-left: var(--MI-thread-width) solid var(--MI_THEME-thread);
 
 	&::before {
-		left: calc(-1 * var(--thread-width));
+		left: calc(-1 * var(--MI-thread-width));
 	}
 }
 
@@ -661,10 +668,10 @@ if (props.detail) {
 	content: '';
 	left: 0px;
 	top: -10px;
-	height: calc(10px + 10px + .5 * var(--avatar));
+	height: calc(10px + 10px + .5 * var(--MI-avatar));
 	width: 15px;
-	border-left: var(--thread-width) solid var(--thread);
-	border-bottom: var(--thread-width) solid var(--thread);
+	border-left: var(--MI-thread-width) solid var(--MI_THEME-thread);
+	border-bottom: var(--MI-thread-width) solid var(--MI_THEME-thread);
 	border-bottom-left-radius: 15px;
 }
 

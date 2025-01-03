@@ -55,7 +55,7 @@ function showInstanceTickerWindow() {
 	display: flex;
 	align-items: center;
 	height: 1.5ex;
-	border-radius: var(--radius-xl);
+	border-radius: var(--MI-radius-xl);
 	padding: 4px;
 	overflow: clip;
 	color: #fff;

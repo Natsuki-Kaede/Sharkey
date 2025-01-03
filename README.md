@@ -67,7 +67,6 @@ https://github.com/paricafe/misskey
 
 - 添加了 Google Translation Fallback
 - 在 MkPostForm 上添加了 autosize （自动随着打字扩张文本框）
-- MkUrlPreview中添加了对 ActivityPub Note 的 Quote-style 预览支持
 - 允许 MkUrlPreview 打开 Bilibili 播放器
 - 更好的 Notification Read 逻辑，自动使得通知变为已读
 - Firefish 风格的 InstanceTicker（点击打开实例信息页面而不是转到原帖子）
@@ -90,10 +89,12 @@ https://github.com/paricafe/misskey
 - 允许在前端禁用 Reactions 功能
 - 允许搜索以 `.bsky.social` 结尾的 Bluesky 用户
 - 允许在前端折叠（Soft mute）用户/某个帖子
+- 允许禁用某些时间线来获得更清爽的首页
 
 #### Changes merged from upstream
 
 - 允许用户查看她们发送但对方还没批准的关注请求
+- MkUrlPreview中添加了对 ActivityPub Note 的 Quote-style 预览支持
 
 ## 从 Sharkey 迁移？ 
 

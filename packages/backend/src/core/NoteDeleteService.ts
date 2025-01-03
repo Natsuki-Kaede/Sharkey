@@ -123,17 +123,22 @@ export class NoteDeleteService {
 				this.perUserNotesChart.update(user, note, false);
 			}
 
-			if (this.userEntityService.isRemoteUser(user)) {
-				this.federatedInstanceService.fetch(user.host).then(async i => {
-					if (note.renoteId && note.text) {
-						this.instancesRepository.decrement({ id: i.id }, 'notesCount', 1);
-					} else if (!note.renoteId) {
-						this.instancesRepository.decrement({ id: i.id }, 'notesCount', 1);
-					}
-					if (this.meta.enableChartsForFederatedInstances) {
-						this.instanceChart.updateNote(i.host, note, false);
-					}
-				});
+			if (note.renoteId && note.text || !note.renoteId) {
+				// Decrement notes count (user)
+				this.decNotesCountOfUser(user);
+			}
+
+			if (this.meta.enableStatsForFederatedInstances) {
+				if (this.userEntityService.isRemoteUser(user)) {
+					this.federatedInstanceService.fetchOrRegister(user.host).then(async i => {
+						if (note.renoteId && note.text || !note.renoteId) {
+							this.instancesRepository.decrement({ id: i.id }, 'notesCount', 1);
+						}
+						if (this.meta.enableChartsForFederatedInstances) {
+							this.instanceChart.updateNote(i.host, note, false);
+						}
+					});
+				}
 			}
 		}
 

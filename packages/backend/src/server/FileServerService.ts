@@ -28,12 +28,12 @@ import { bindThis } from '@/decorators.js';
 import { isMimeImage } from '@/misc/is-mime-image.js';
 import { correctFilename } from '@/misc/correct-filename.js';
 import { handleRequestRedirectToOmitSearch } from '@/misc/fastify-hook-handlers.js';
-import { RateLimiterService } from '@/server/api/RateLimiterService.js';
 import { getIpHash } from '@/misc/get-ip-hash.js';
 import { AuthenticateService } from '@/server/api/AuthenticateService.js';
-import type { IEndpointMeta } from '@/server/api/endpoints.js';
+import { RoleService } from '@/core/RoleService.js';
+import { SkRateLimiterService } from '@/server/api/SkRateLimiterService.js';
+import { Keyed, RateLimit, sendRateLimitHeaders } from '@/misc/rate-limit-utils.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply, FastifyPluginOptions } from 'fastify';
-import type Limiter from 'ratelimiter';
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
@@ -58,7 +58,8 @@ export class FileServerService {
 		private internalStorageService: InternalStorageService,
 		private loggerService: LoggerService,
 		private authenticateService: AuthenticateService,
-		private rateLimiterService: RateLimiterService,
+		private rateLimiterService: SkRateLimiterService,
+		private roleService: RoleService,
 	) {
 		this.logger = this.loggerService.getLogger('server', 'gray');
 
@@ -192,6 +193,9 @@ export class FileServerService {
 					}
 				}
 
+				// set Content-Length before we chunk, so it can properly override when chunking.
+				reply.header('Content-Length', file.file.size);
+
 				if (!image) {
 					if (request.headers.range && file.file.size > 0) {
 						const range = request.headers.range as string;
@@ -235,7 +239,6 @@ export class FileServerService {
 				}
 
 				reply.header('Content-Type', FILE_TYPE_BROWSERSAFE.includes(image.type) ? image.type : 'application/octet-stream');
-				reply.header('Content-Length', file.file.size);
 				reply.header('Cache-Control', 'max-age=31536000, immutable');
 				reply.header('Content-Disposition',
 					contentDisposition(
@@ -623,48 +626,44 @@ export class FileServerService {
 		// koa will automatically load the `X-Forwarded-For` header if `proxy: true` is configured in the app.
 		const [user] = await this.authenticateService.authenticate(token);
 		const actor = user?.id ?? getIpHash(request.ip);
+		const factor = user ? (await this.roleService.getUserPolicies(user.id)).rateLimitFactor : 1;
 
 		// Call both limits: the per-resource limit and the shared cross-resource limit
-		return await this.checkResourceLimit(reply, actor, group, resource) && await this.checkSharedLimit(reply, actor, group);
+		return await this.checkResourceLimit(reply, actor, group, resource, factor) && await this.checkSharedLimit(reply, actor, group, factor);
 	}
 
-	private async checkResourceLimit(reply: FastifyReply, actor: string, group: string, resource: string): Promise<boolean> {
-		const limit = {
+	private async checkResourceLimit(reply: FastifyReply, actor: string, group: string, resource: string, factor = 1): Promise<boolean> {
+		const limit: Keyed<RateLimit> = {
 			// Group by resource
 			key: `${group}${resource}`,
+			type: 'bucket',
 
-			// Maximum of 10 requests / 10 minutes
-			max: 10,
-			duration: 1000 * 60 * 10,
+			// Maximum of 10 requests, average rate of 1 per minute
+			size: 10,
+			dripRate: 1000 * 60,
 		};
 
-		return await this.checkLimit(reply, actor, limit);
+		return await this.checkLimit(reply, actor, limit, factor);
 	}
 
-	private async checkSharedLimit(reply: FastifyReply, actor: string, group: string): Promise<boolean> {
-		const limit = {
+	private async checkSharedLimit(reply: FastifyReply, actor: string, group: string, factor = 1): Promise<boolean> {
+		const limit: Keyed<RateLimit> = {
 			key: group,
+			type: 'bucket',
 
-			// Maximum of 3600 requests per hour, which is an average of 1 per second.
-			max: 3600,
-			duration: 1000 * 60 * 60,
+			// Maximum of 3600 requests, average rate of 1 per second.
+			size: 3600,
 		};
 
-		return await this.checkLimit(reply, actor, limit);
+		return await this.checkLimit(reply, actor, limit, factor);
 	}
 
-	private async checkLimit(reply: FastifyReply, actor: string, limit: IEndpointMeta['limit'] & { key: NonNullable<string> }): Promise<boolean> {
-		try {
-			await this.rateLimiterService.limit(limit, actor);
-			return true;
-		} catch (err) {
-			// errはLimiter.LimiterInfoであることが期待される
-			if (hasRateLimitInfo(err)) {
-				const cooldownInSeconds = Math.ceil((err.info.resetMs - Date.now()) / 1000);
-				// もしかするとマイナスになる可能性がなくはないのでマイナスだったら0にしておく
-				reply.header('Retry-After', Math.max(cooldownInSeconds, 0).toString(10));
-			}
+	private async checkLimit(reply: FastifyReply, actor: string, limit: Keyed<RateLimit>, factor = 1): Promise<boolean> {
+		const info = await this.rateLimiterService.limit(limit, actor, factor);
 
+		sendRateLimitHeaders(reply, info);
+
+		if (info.blocked) {
 			reply.code(429);
 			reply.send({
 				message: 'Rate limit exceeded. Please try again later.',
@@ -674,9 +673,8 @@ export class FileServerService {
 
 			return false;
 		}
+
+		return true;
 	}
 }
 
-function hasRateLimitInfo(err: unknown): err is { info: Limiter.LimiterInfo } {
-	return err != null && typeof(err) === 'object' && 'info' in err;
-}
