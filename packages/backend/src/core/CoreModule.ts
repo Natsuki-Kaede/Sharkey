@@ -17,6 +17,8 @@ import { WebhookTestService } from '@/core/WebhookTestService.js';
 import { FlashService } from '@/core/FlashService.js';
 import { TimeService } from '@/core/TimeService.js';
 import { EnvService } from '@/core/EnvService.js';
+import { ApUtilityService } from '@/core/activitypub/ApUtilityService.js';
+import { ApLogService } from '@/core/ApLogService.js';
 import { AccountMoveService } from './AccountMoveService.js';
 import { AccountUpdateService } from './AccountUpdateService.js';
 import { AnnouncementService } from './AnnouncementService.js';
@@ -166,6 +168,7 @@ const $AccountMoveService: Provider = { provide: 'AccountMoveService', useExisti
 const $AccountUpdateService: Provider = { provide: 'AccountUpdateService', useExisting: AccountUpdateService };
 const $AnnouncementService: Provider = { provide: 'AnnouncementService', useExisting: AnnouncementService };
 const $AntennaService: Provider = { provide: 'AntennaService', useExisting: AntennaService };
+const $ApLogService: Provider = { provide: 'ApLogService', useExisting: ApLogService };
 const $AppLockService: Provider = { provide: 'AppLockService', useExisting: AppLockService };
 const $AchievementService: Provider = { provide: 'AchievementService', useExisting: AchievementService };
 const $AvatarDecorationService: Provider = { provide: 'AvatarDecorationService', useExisting: AvatarDecorationService };
@@ -232,6 +235,8 @@ const $FanoutTimelineEndpointService: Provider = { provide: 'FanoutTimelineEndpo
 const $ChannelFollowingService: Provider = { provide: 'ChannelFollowingService', useExisting: ChannelFollowingService };
 const $RegistryApiService: Provider = { provide: 'RegistryApiService', useExisting: RegistryApiService };
 const $ReversiService: Provider = { provide: 'ReversiService', useExisting: ReversiService };
+const $TimeService: Provider = { provide: 'TimeService', useExisting: TimeService };
+const $EnvService: Provider = { provide: 'EnvService', useExisting: EnvService };
 
 const $ChartLoggerService: Provider = { provide: 'ChartLoggerService', useExisting: ChartLoggerService };
 const $FederationChart: Provider = { provide: 'FederationChart', useExisting: FederationChart };
@@ -304,6 +309,7 @@ const $ApMentionService: Provider = { provide: 'ApMentionService', useExisting: 
 const $ApNoteService: Provider = { provide: 'ApNoteService', useExisting: ApNoteService };
 const $ApPersonService: Provider = { provide: 'ApPersonService', useExisting: ApPersonService };
 const $ApQuestionService: Provider = { provide: 'ApQuestionService', useExisting: ApQuestionService };
+const $ApUtilityService: Provider = { provide: 'ApUtilityService', useExisting: ApUtilityService };
 //#endregion
 
 const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: SponsorsService };
@@ -320,6 +326,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		AccountUpdateService,
 		AnnouncementService,
 		AntennaService,
+		ApLogService,
 		AppLockService,
 		AchievementService,
 		AvatarDecorationService,
@@ -460,6 +467,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		ApNoteService,
 		ApPersonService,
 		ApQuestionService,
+		ApUtilityService,
 		QueueService,
 
 		SponsorsService,
@@ -472,6 +480,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$AccountUpdateService,
 		$AnnouncementService,
 		$AntennaService,
+		$ApLogService,
 		$AppLockService,
 		$AchievementService,
 		$AvatarDecorationService,
@@ -538,6 +547,8 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$ChannelFollowingService,
 		$RegistryApiService,
 		$ReversiService,
+		$TimeService,
+		$EnvService,
 
 		$ChartLoggerService,
 		$FederationChart,
@@ -610,6 +621,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$ApNoteService,
 		$ApPersonService,
 		$ApQuestionService,
+		$ApUtilityService,
 		//#endregion
 
 		$SponsorsService,
@@ -623,6 +635,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		AccountUpdateService,
 		AnnouncementService,
 		AntennaService,
+		ApLogService,
 		AppLockService,
 		AchievementService,
 		AvatarDecorationService,
@@ -762,6 +775,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		ApNoteService,
 		ApPersonService,
 		ApQuestionService,
+		ApUtilityService,
 		QueueService,
 
 		SponsorsService,
@@ -774,6 +788,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$AccountUpdateService,
 		$AnnouncementService,
 		$AntennaService,
+		$ApLogService,
 		$AppLockService,
 		$AchievementService,
 		$AvatarDecorationService,
@@ -839,6 +854,8 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$ChannelFollowingService,
 		$RegistryApiService,
 		$ReversiService,
+		$TimeService,
+		$EnvService,
 
 		$FederationChart,
 		$NotesChart,
@@ -910,6 +927,7 @@ const $SponsorsService: Provider = { provide: 'SponsorsService', useExisting: Sp
 		$ApNoteService,
 		$ApPersonService,
 		$ApQuestionService,
+		$ApUtilityService,
 		//#endregion
 
 		$SponsorsService,

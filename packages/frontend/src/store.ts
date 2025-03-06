@@ -11,11 +11,11 @@ import darkTheme from '@@/themes/d-ice.json5';
 import { searchEngineMap } from './scripts/search-engine-map.js';
 import { stpvDefaultStoreExtension } from './stpv-store-ext.js';
 import type { SoundType } from '@/scripts/sound.js';
+import type { Ast } from '@syuilo/aiscript';
 import { DEFAULT_DEVICE_KIND, type DeviceKind } from '@/scripts/device-kind.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { defaultFollowingFeedState } from '@/scripts/following-feed-utils.js';
 import { Storage } from '@/pizzax.js';
-import type { Ast } from '@syuilo/aiscript';
 
 interface PostFormAction {
 	title: string,
@@ -560,6 +560,10 @@ export const defaultStore = markRaw(new Storage('base', {
 		default: 'app' as 'app' | 'appWithShift' | 'native',
 	},
 	skipNoteRender: {
+		where: 'device',
+		default: false,
+	},
+	showSoftWordMutedWord: {
 		where: 'device',
 		default: false,
 	},

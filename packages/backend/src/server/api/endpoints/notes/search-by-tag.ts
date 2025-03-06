@@ -93,6 +93,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				// 		qb.orWhere('note.userId = :meid');
 				// 	}
 				// }))
+				// .andWhere("note.visibility IN	('public', 'home')") // keep in sync with NoteCreateService call to `hashtagService.updateHashtags()`
 				.innerJoinAndSelect('note.user', 'user')
 				.leftJoinAndSelect('note.reply', 'reply')
 				.leftJoinAndSelect('note.renote', 'renote')

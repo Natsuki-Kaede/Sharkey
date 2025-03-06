@@ -41,6 +41,10 @@ https://github.com/paricafe/misskey
 
 - 添加了 pgroonga 用于全文搜索
 
+> [!NOTE]
+> 请在 `default.yml` 中配置 `fulltextSearch.provider` 为 `sqlPgroonga`
+> 关于该配置项，请阅读 `example.yml`
+
 ### Other
 
 #### Behaviour Changes
@@ -62,6 +66,22 @@ https://github.com/paricafe/misskey
 - 允许的界面字体范围大大增加，默认字体从14px改为16px
 - 处于 collapsed 状态的被回复/被折叠帖子现在采用 stpvInline MFM，提供完整但inline的MFM体验
 - "show less" 按钮现在会浮动在时间线下方
+
+- 添加了更多 CSS 属性，方便自定义 CSS 用户。例如，你可以这样为不同隐私性的帖子赋予不同的背景色：
+```css
+.d-home{
+	--MI_THEME-panel: #443322;
+	background: var(--MI_THEME-panel);
+}
+.d-followers{
+	--MI_THEME-panel: #334455;
+	background: var(--MI_THEME-panel);
+}
+.d-specified{
+	--MI_THEME-panel: #223322;
+	background: var(--MI_THEME-panel);
+}
+```
 
 #### Features
 

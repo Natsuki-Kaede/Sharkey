@@ -25,9 +25,14 @@ import { ModerationLogService } from '@/core/ModerationLogService.js';
 import { isQuote, isRenote } from '@/misc/is-renote.js';
 import { IdService } from '@/core/IdService.js';
 import { LatestNoteService } from '@/core/LatestNoteService.js';
+import { ApLogService } from '@/core/ApLogService.js';
+import Logger from '@/logger.js';
+import { LoggerService } from './LoggerService.js';
 
 @Injectable()
 export class NoteDeleteService {
+	private readonly logger: Logger;
+
 	constructor(
 		@Inject(DI.config)
 		private config: Config,
@@ -57,7 +62,11 @@ export class NoteDeleteService {
 		private perUserNotesChart: PerUserNotesChart,
 		private instanceChart: InstanceChart,
 		private latestNoteService: LatestNoteService,
-	) {}
+		private readonly apLogService: ApLogService,
+		loggerService: LoggerService,
+	) {
+		this.logger = loggerService.getLogger('note-delete-service');
+	}
 
 	/**
 	 * 投稿を削除します。
@@ -170,8 +179,12 @@ export class NoteDeleteService {
 				noteUserId: note.userId,
 				noteUserUsername: user.username,
 				noteUserHost: user.host,
-				note: note,
 			});
+		}
+
+		if (note.uri) {
+			this.apLogService.deleteObjectLogs(note.uri)
+				.catch(err => this.logger.error(err, `Failed to delete AP logs for note '${note.uri}'`));
 		}
 	}
 

@@ -170,16 +170,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</div>
 				</div>
 				<div class="section _block">
-					<div class="title">边框</div>
-					<div class="content">
-						<p>在文字外面加入边框</p>
-						<div class="preview">
-							<Mfm :text="preview_border"/>
-							<MkTextarea v-model="preview_border"><template #label>MFM</template></MkTextarea>
-						</div>
-					</div>
-				</div>
-				<div class="section _block">
 					<div class="title">{{ i18n.ts._mfm.search }}</div>
 					<div class="content">
 						<p>{{ i18n.ts._mfm.searchDescription }}</p>
@@ -422,6 +412,16 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</div>
 				</div>
 				<div class="section _block">
+					<div class="title">{{ i18n.ts._mfm.border }}</div>
+					<div class="content">
+						<p>{{ i18n.ts._mfm.borderDescription }}</p>
+						<div class="preview">
+							<Mfm :text="preview_border"/>
+							<MkTextarea v-model="preview_border"><span>MFM</span></MkTextarea>
+						</div>
+					</div>
+				</div>
+				<div class="section _block">
 					<div class="title">{{ i18n.ts._mfm.plain }}</div>
 					<div class="content">
 						<p>{{ i18n.ts._mfm.plainDescription }}</p>
@@ -461,7 +461,7 @@ const preview_center = ref(
 );
 const preview_inlineCode = ref('`<: "Hello, world!"`');
 const preview_blockCode = ref(
-	'```\n~ (#i, 100) {\n\t<: ? ((i % 15) = 0) "FizzBuzz"\n\t\t.? ((i % 3) = 0) "Fizz"\n\t\t.? ((i % 5) = 0) "Buzz"\n\t\t. i\n}\n```',
+	'```ai\n~ (#i, 100) {\n\t<: ? ((i % 15) = 0) "FizzBuzz"\n\t\t.? ((i % 3) = 0) "Fizz"\n\t\t.? ((i % 5) = 0) "Buzz"\n\t\t. i\n}\n```',
 );
 const preview_inlineMath = ref(
 	'\\(x= \\frac{-b\' \\pm \\sqrt{(b\')^2-ac}}{a}\\)',

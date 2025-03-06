@@ -38,7 +38,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<span v-if="note.localOnly" style="margin-left: 0.5em;" :title="i18n.ts._visibility['disableFederation']"><i class="ph-rocket ph-bold ph-lg"></i></span>
 			<span v-if="note.channel" style="margin-left: 0.5em;" :title="note.channel.name"><i class="ph-television ph-bold ph-lg"></i></span>
 		</div>
-		<div :class="$style.info"><SkInstanceTicker v-if="showTicker" style="cursor: pointer;" :instance="note.user.instance" :host="note.user.host"/></div>
+		<div :class="$style.info">
+			<SkInstanceTicker v-if="showTicker" style="cursor: pointer;" :instance="note.user.instance" :host="note.user.host"/>
+		</div>
 	</div>
 </header>
 <header v-else :class="$style.classicRoot">
@@ -85,6 +87,7 @@ import { popupMenu } from '@/os.js';
 import { defaultStore } from '@/store.js';
 import { useRouter } from '@/router/supplier.js';
 import { deviceKind } from '@/scripts/device-kind.js';
+import MkInstanceTicker from '@/components/MkInstanceTicker.vue';
 
 const props = defineProps<{
 	note: Misskey.entities.Note;

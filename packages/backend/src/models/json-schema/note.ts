@@ -17,6 +17,11 @@ export const packedNoteSchema = {
 			optional: false, nullable: false,
 			format: 'date-time',
 		},
+		updatedAt: {
+			type: 'string',
+			optional: true, nullable: false,
+			format: 'date-time',
+		},
 		deletedAt: {
 			type: 'string',
 			optional: true, nullable: true,
@@ -65,6 +70,10 @@ export const packedNoteSchema = {
 		isHidden: {
 			type: 'boolean',
 			optional: true, nullable: false,
+		},
+		hiddenReason: {
+			type: 'string',
+			optional: true, nullable: true,
 		},
 		visibility: {
 			type: 'string',
@@ -255,6 +264,14 @@ export const packedNoteSchema = {
 		clippedCount: {
 			type: 'number',
 			optional: true, nullable: false,
+		},
+		processErrors: {
+			type: 'array',
+			optional: true, nullable: true,
+			items: {
+				type: 'string',
+				optional: false, nullable: false,
+			},
 		},
 
 		myReaction: {

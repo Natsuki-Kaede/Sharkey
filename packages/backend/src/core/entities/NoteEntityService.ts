@@ -42,8 +42,14 @@ function getAppearNoteIds(notes: MiNote[]): Set<string> {
 	for (const note of notes) {
 		if (isPureRenote(note)) {
 			appearNoteIds.add(note.renoteId);
+			if (note.renote?.replyId) {
+				appearNoteIds.add(note.renote.replyId);
+			}
 		} else {
 			appearNoteIds.add(note.id);
+			if (note.replyId) {
+				appearNoteIds.add(note.replyId);
+			}
 		}
 	}
 	return appearNoteIds;
@@ -68,9 +74,6 @@ export class NoteEntityService implements OnModuleInit {
 
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
-
-		@Inject(DI.config)
-		private config: Config,
 
 		@Inject(DI.notesRepository)
 		private notesRepository: NotesRepository,
@@ -110,8 +113,7 @@ export class NoteEntityService implements OnModuleInit {
 	}
 
 	@bindThis
-	private async hideNote(packedNote: Packed<'Note'>, meId: MiUser['id'] | null): Promise<void> {
-		// FIXME: このvisibility変更処理が当関数にあるのは若干不自然かもしれない(関数名を treatVisibility とかに変える手もある)
+	private treatVisibility(packedNote: Packed<'Note'>): Packed<'Note'>['visibility'] {
 		if (packedNote.visibility === 'public' || packedNote.visibility === 'home') {
 			const followersOnlyBefore = packedNote.user.makeNotesFollowersOnlyBefore;
 			if ((followersOnlyBefore != null)
@@ -123,25 +125,32 @@ export class NoteEntityService implements OnModuleInit {
 				packedNote.visibility = 'followers';
 			}
 		}
+		return packedNote.visibility;
+	}
 
+	@bindThis
+	public async hideNote(packedNote: Packed<'Note'>, meId: MiUser['id'] | null): Promise<void> {
 		if (meId === packedNote.userId) return;
 
 		// TODO: isVisibleForMe を使うようにしても良さそう(型違うけど)
 		let hide = false;
+		let hiddenReason = '';
 
 		if (packedNote.user.requireSigninToViewContents && meId == null) {
 			hide = true;
+			hiddenReason = 'PLEASE_LOGIN';
 		}
 
 		if (!hide) {
 			const hiddenBefore = packedNote.user.makeNotesHiddenBefore;
 			if ((hiddenBefore != null)
 				&& (
-					(hiddenBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() > 0 - (hiddenBefore * 1000)))
+					(hiddenBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() + 100 > 0 - (hiddenBefore * 1000)))
 					|| (hiddenBefore > 0 && (new Date(packedNote.createdAt).getTime() < hiddenBefore * 1000))
 				)
 			) {
 				hide = true;
+				hiddenReason = 'MISSKEY_EXPERIMENTAL_TIME';
 			}
 		}
 
@@ -150,14 +159,16 @@ export class NoteEntityService implements OnModuleInit {
 			if (packedNote.visibility === 'specified') {
 				if (meId == null) {
 					hide = true;
+					hiddenReason = 'LOCKED';
 				} else if (meId === packedNote.userId) {
 					hide = false;
 				} else {
 					// 指定されているかどうか
-					const specified = packedNote.visibleUserIds!.some(id => meId === id);
+					const specified = packedNote.visibleUserIds?.some(id => meId === id);
 
 					if (!specified) {
 						hide = true;
+						hiddenReason = 'LOCKED';
 					}
 				}
 			}
@@ -168,6 +179,7 @@ export class NoteEntityService implements OnModuleInit {
 			if (packedNote.visibility === 'followers') {
 				if (meId == null) {
 					hide = true;
+					hiddenReason = 'LOCKED';
 				} else if (meId === packedNote.userId) {
 					hide = false;
 				} else if (packedNote.reply && (meId === packedNote.reply.userId)) {
@@ -189,6 +201,9 @@ export class NoteEntityService implements OnModuleInit {
 					});
 
 					hide = !isFollowing;
+					if (hide) {
+						hiddenReason = 'LOCKED';
+					}
 				}
 			}
 		}
@@ -199,12 +214,16 @@ export class NoteEntityService implements OnModuleInit {
 		// This is pulled out to ensure that we check both the renote *and* the boosted note.
 		if (packedNote.renote?.isHidden && isPackedPureRenote(packedNote)) {
 			hide = true;
+			hiddenReason = 'PURE_RENOTE';
 		}
 
 		if (!hide && meId && packedNote.userId !== meId) {
 			const isBlocked = (await this.cacheService.userBlockedCache.fetch(meId)).has(packedNote.userId);
 
-			if (isBlocked) hide = true;
+			if (isBlocked) {
+				hide = true;
+				hiddenReason = 'BLOCKED';
+			}
 		}
 
 		if (hide) {
@@ -221,6 +240,7 @@ export class NoteEntityService implements OnModuleInit {
 			packedNote.reactionEmojis = {};
 			packedNote.reactions = {};
 			packedNote.isHidden = true;
+			packedNote.hiddenReason = hiddenReason;
 			// TODO: hiddenReason みたいなのを提供しても良さそう
 		}
 	}
@@ -272,7 +292,9 @@ export class NoteEntityService implements OnModuleInit {
 			const reaction = _hint_.myReactions.get(note.id);
 			if (reaction) {
 				return this.reactionService.convertLegacyReaction(reaction);
-			} else {
+			} else if (reaction === null) {
+				// the hints explicitly say this note has no reactions from
+				// this user
 				return undefined;
 			}
 		}
@@ -491,6 +513,7 @@ export class NoteEntityService implements OnModuleInit {
 
 			...(opts.detail ? {
 				clippedCount: note.clippedCount,
+				processErrors: note.processErrors,
 
 				reply: note.replyId ? this.pack(note.reply ?? note.replyId, me, {
 					detail: false,
@@ -507,6 +530,8 @@ export class NoteEntityService implements OnModuleInit {
 				}) : undefined,
 			} : {}),
 		});
+
+		this.treatVisibility(packed);
 
 		if (!opts.skipHide) {
 			await this.hideNote(packed, meId);
@@ -533,44 +558,39 @@ export class NoteEntityService implements OnModuleInit {
 		if (meId) {
 			const idsNeedFetchMyReaction = new Set<MiNote['id']>();
 
-			// パフォーマンスのためノートが作成されてから2秒以上経っていない場合はリアクションを取得しない
-			const oldId = this.idService.gen(Date.now() - 2000);
-
+			const targetNotes: MiNote[] = [];
 			for (const note of notes) {
 				if (isPureRenote(note)) {
-					const reactionsCount = Object.values(this.reactionsBufferingService.mergeReactions(note.renote.reactions, bufferedReactions?.get(note.renote.id)?.deltas ?? {})).reduce((a, b) => a + b, 0);
-					if (reactionsCount === 0) {
-						myReactionsMap.set(note.renote.id, null);
-					} else if (reactionsCount <= note.renote.reactionAndUserPairCache.length + (bufferedReactions?.get(note.renote.id)?.pairs.length ?? 0)) {
-						const pairInBuffer = bufferedReactions?.get(note.renote.id)?.pairs.find(p => p[0] === meId);
-						if (pairInBuffer) {
-							myReactionsMap.set(note.renote.id, pairInBuffer[1]);
-						} else {
-							const pair = note.renote.reactionAndUserPairCache.find(p => p.startsWith(meId));
-							myReactionsMap.set(note.renote.id, pair ? pair.split('/')[1] : null);
-						}
-					} else {
-						idsNeedFetchMyReaction.add(note.renote.id);
+					// we may need to fetch 'my reaction' for renote target.
+					targetNotes.push(note.renote);
+					if (note.renote.reply) {
+						// idem if the renote is also a reply.
+						targetNotes.push(note.renote.reply);
 					}
 				} else {
-					if (note.id < oldId) {
-						const reactionsCount = Object.values(this.reactionsBufferingService.mergeReactions(note.reactions, bufferedReactions?.get(note.id)?.deltas ?? {})).reduce((a, b) => a + b, 0);
-						if (reactionsCount === 0) {
-							myReactionsMap.set(note.id, null);
-						} else if (reactionsCount <= note.reactionAndUserPairCache.length + (bufferedReactions?.get(note.id)?.pairs.length ?? 0)) {
-							const pairInBuffer = bufferedReactions?.get(note.id)?.pairs.find(p => p[0] === meId);
-							if (pairInBuffer) {
-								myReactionsMap.set(note.id, pairInBuffer[1]);
-							} else {
-								const pair = note.reactionAndUserPairCache.find(p => p.startsWith(meId));
-								myReactionsMap.set(note.id, pair ? pair.split('/')[1] : null);
-							}
-						} else {
-							idsNeedFetchMyReaction.add(note.id);
-						}
-					} else {
-						myReactionsMap.set(note.id, null);
+					if (note.reply) {
+						// idem for OP of a regular reply.
+						targetNotes.push(note.reply);
 					}
+
+					targetNotes.push(note);
+				}
+			}
+
+			for (const note of targetNotes) {
+				const reactionsCount = Object.values(this.reactionsBufferingService.mergeReactions(note.reactions, bufferedReactions?.get(note.id)?.deltas ?? {})).reduce((a, b) => a + b, 0);
+				if (reactionsCount === 0) {
+					myReactionsMap.set(note.id, null);
+				} else if (reactionsCount <= note.reactionAndUserPairCache.length + (bufferedReactions?.get(note.id)?.pairs.length ?? 0)) {
+					const pairInBuffer = bufferedReactions?.get(note.id)?.pairs.find(p => p[0] === meId);
+					if (pairInBuffer) {
+						myReactionsMap.set(note.id, pairInBuffer[1]);
+					} else {
+						const pair = note.reactionAndUserPairCache.find(p => p.startsWith(meId));
+						myReactionsMap.set(note.id, pair ? pair.split('/')[1] : null);
+					}
+				} else {
+					idsNeedFetchMyReaction.add(note.id);
 				}
 			}
 

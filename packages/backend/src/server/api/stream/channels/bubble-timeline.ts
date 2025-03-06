@@ -3,8 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { Inject, Injectable } from '@nestjs/common';
-import { DI } from '@/di-symbols.js';
+import { Injectable } from '@nestjs/common';
 import type { Packed } from '@/misc/json-schema.js';
 import { MetaService } from '@/core/MetaService.js';
 import { NoteEntityService } from '@/core/entities/NoteEntityService.js';
@@ -28,13 +27,12 @@ class BubbleTimelineChannel extends Channel {
 	constructor(
 		private metaService: MetaService,
 		private roleService: RoleService,
-		private noteEntityService: NoteEntityService,
+		noteEntityService: NoteEntityService,
 
 		id: string,
 		connection: Channel['connection'],
 	) {
-		super(id, connection);
-		//this.onNote = this.onNote.bind(this);
+		super(id, connection, noteEntityService);
 	}
 
 	@bindThis
@@ -78,16 +76,12 @@ class BubbleTimelineChannel extends Channel {
 
 		if (this.isNoteMutedOrBlocked(note)) return;
 
-		if (this.user && isRenotePacked(note) && !isQuotePacked(note)) {
-			if (note.renote && Object.keys(note.renote.reactions).length > 0) {
-				const myRenoteReaction = await this.noteEntityService.populateMyReaction(note.renote, this.user.id);
-				note.renote.myReaction = myRenoteReaction;
-			}
-		}
+		const clonedNote = await this.assignMyReaction(note);
+		await this.hideNote(clonedNote);
 
-		this.connection.cacheNote(note);
+		this.connection.cacheNote(clonedNote);
 
-		this.send('note', note);
+		this.send('note', clonedNote);
 	}
 
 	@bindThis

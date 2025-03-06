@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { UnrecoverableError } from 'bullmq';
+import { IdentifiableError } from '@/misc/identifiable-error.js';
 import { fromTuple } from '@/misc/from-tuple.js';
 
 export type Obj = { [x: string]: any };
@@ -65,7 +65,7 @@ export function getApId(value: string | IObject | [string | IObject]): string {
 
 	if (typeof value === 'string') return value;
 	if (typeof value.id === 'string') return value.id;
-	throw new UnrecoverableError('cannot determine id');
+	throw new IdentifiableError('ad2dc287-75c1-44c4-839d-3d2e64576675', `invalid AP object ${value}: missing id`);
 }
 
 /**
@@ -202,7 +202,7 @@ export interface IActor extends IObject {
 	manuallyApprovesFollowers?: boolean;
 	movedTo?: string;
 	alsoKnownAs?: string[];
-	discoverable?: boolean;
+	discoverable?: boolean | null;
 	inbox: string;
 	sharedInbox?: string;	// 後方互換性のため
 	publicKey?: {
@@ -270,6 +270,11 @@ export interface IApEmoji extends IObject {
 	type: 'Emoji';
 	name: string;
 	updated: string;
+	// Misskey拡張。後方互換性のためにoptional。
+	// 将来の拡張性を考慮してobjectにしている
+	_misskey_license?: {
+		freeText: string | null;
+	};
 }
 
 export const isEmoji = (object: IObject): object is IApEmoji =>
@@ -285,6 +290,8 @@ export const validDocumentTypes = ['Audio', 'Document', 'Image', 'Page', 'Video'
 
 export interface IApDocument extends IObject {
 	type: 'Audio' | 'Document' | 'Image' | 'Page' | 'Video';
+	width?: number;
+	height?: number;
 }
 
 export const isDocument = (object: IObject): object is IApDocument => {
