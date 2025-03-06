@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-show="!isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
-	:class="[$style.root, { [$style.skipRender]: defaultStore.state.enableRenderingOptimization }， ...stpvNoteClassBindings(note) ]"
+	:class="[$style.root, { [$style.skipRender]: defaultStore.state.enableRenderingOptimization }, ...stpvNoteClassBindings(note) ]"
 	:tabindex="isDeleted ? '-1' : '0'"
 >
 	<div v-if="appearNote.reply && appearNote.reply.replyId && !conversationLoaded" style="padding: 16px">
