@@ -77,17 +77,10 @@ defineExpose({
 	&:not(.noGap) {
 		background: var(--MI_THEME-bg);
 
-<<<<<<< HEAD
-			.note {
-				box-shadow: 0 4px 25px #0000000a;
-				background: color-mix(in srgb, var(--MI_THEME-panel) 65%, transparent);
-				border-radius: var(--MI-radius);
-			}
-=======
 		.note {
+			box-shadow: 0 4px 25px #0000000a;
 			background: color-mix(in srgb, var(--MI_THEME-panel) 65%, transparent);
 			border-radius: var(--MI-radius);
->>>>>>> stpv/stelpolva
 		}
 	}
 }
