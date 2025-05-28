@@ -152,6 +152,11 @@ id: 'aidx'
 #    dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0'
 
 #sentryForFrontend:
+#  vueIntegration:
+#    tracingOptions:
+#      trackComponents: true
+#  browserTracingIntegration:
+#  replayIntegration:
 #  options:
 #    dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0'
 
@@ -193,6 +198,10 @@ proxyBypassHosts:
 #proxySmtp: http://127.0.0.1:3128   # use HTTP/1.1 CONNECT
 #proxySmtp: socks4://127.0.0.1:1080 # use SOCKS4
 #proxySmtp: socks5://127.0.0.1:1080 # use SOCKS5
+
+# Path to the directory that uploaded media will be saved to
+# Defaults to a folder called "files" in the Sharkey directory
+#mediaDirectory: /var/lib/sharkey
 
 # Media Proxy
 #mediaProxy: https://example.com/proxy

@@ -4,7 +4,7 @@
  */
 
 import { Entity, Column, Index, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm';
-import { obsoleteNotificationTypes, followingVisibilities, followersVisibilities, notificationTypes, noteVisibilities, defaultCWPriorities } from '@/types.js';
+import { obsoleteNotificationTypes, followingVisibilities, followersVisibilities, notificationTypes, defaultCWPriorities } from '@/types.js';
 import { id } from './util/id.js';
 import { MiUser } from './User.js';
 import { MiPage } from './Page.js';
@@ -111,12 +111,14 @@ export class MiUserProfile {
 
 	@Column('enum', {
 		enum: followingVisibilities,
+		enumName: 'user_profile_followingVisibility_enum',
 		default: 'public',
 	})
 	public followingVisibility: typeof followingVisibilities[number];
 
 	@Column('enum', {
 		enum: followersVisibilities,
+		enumName: 'user_profile_followersVisibility_enum',
 		default: 'public',
 	})
 	public followersVisibility: typeof followersVisibilities[number];

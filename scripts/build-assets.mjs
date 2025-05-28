@@ -75,7 +75,8 @@ async function buildBackendScript() {
     './packages/backend/src/server/web/boot.js',
     './packages/backend/src/server/web/boot.embed.js',
     './packages/backend/src/server/web/bios.js',
-    './packages/backend/src/server/web/cli.js'
+    './packages/backend/src/server/web/cli.js',
+    './packages/backend/src/server/web/error.js',
   ]) {
     let source = await fs.readFile(file, { encoding: 'utf-8' });
     source = source.replaceAll(/\bLANGS\b/g, JSON.stringify(Object.keys(locales)));
@@ -116,13 +117,15 @@ async function build() {
 await build();
 
 if (process.argv.includes('--watch')) {
-	const watcher = fs.watch('./locales');
-	for await (const event of watcher) {
-		const filename = event.filename?.replaceAll('\\', '/');
-		if (/^[a-z]+-[A-Z]+\.yml/.test(filename)) {
-			console.log(`update ${filename} ...`)
-			locales = buildLocales();
-			await copyFrontendLocales()
+	['./locales', './sharkey-locales', './stpv-locales'].forEach(async (dir) => {
+		const watcher = fs.watch(dir);
+		for await (const event of watcher) {
+			const filename = event.filename?.replaceAll('\\', '/');
+			if (/^[a-z]+-[A-Z]+\.yml/.test(filename)) {
+				console.log(`update ${filename} ...`)
+				locales = buildLocales();
+				await copyFrontendLocales()
+			}
 		}
-	}
+	})
 }

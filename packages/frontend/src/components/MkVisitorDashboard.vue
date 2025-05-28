@@ -28,7 +28,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</div>
 			<div class="_gaps_s" :class="$style.mainActions">
 				<MkButton :class="$style.mainAction" full rounded gradate data-cy-signup style="margin-right: 12px;" @click="signup()">{{ i18n.ts.joinThisServer }}</MkButton>
-				<MkButton :class="$style.mainAction" full rounded link to="https://joinsharkey.org/#findaninstance">{{ i18n.ts.exploreOtherServers }}</MkButton>
+				<MkButton v-if="instance.policies.ltlAvailable" :class="$style.mainAction" full rounded link to="/explore">{{ i18n.ts.explore }}</MkButton>
 				<MkButton :class="$style.mainAction" full rounded data-cy-signin @click="signin()">{{ i18n.ts.login }}</MkButton>
 			</div>
 		</div>
@@ -58,7 +58,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { ref } from 'vue';
 import * as Misskey from 'misskey-js';
-import sanitizeHtml from '@/scripts/sanitize-html.js';
+import sanitizeHtml from '@/utility/sanitize-html.js';
 import XSigninDialog from '@/components/MkSigninDialog.vue';
 import XSignupDialog from '@/components/MkSignupDialog.vue';
 import MkButton from '@/components/MkButton.vue';
@@ -66,7 +66,7 @@ import MkTimeline from '@/components/MkTimeline.vue';
 import MkInfo from '@/components/MkInfo.vue';
 import { instanceName } from '@@/js/config.js';
 import * as os from '@/os.js';
-import { misskeyApi } from '@/scripts/misskey-api.js';
+import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';
 import MkNumber from '@/components/MkNumber.vue';
@@ -193,7 +193,7 @@ function showMenu(ev: MouseEvent) {
 }
 
 .statsItemLabel {
-	color: var(--MI_THEME-fgTransparentWeak);
+	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
 	font-size: 0.9em;
 }
 

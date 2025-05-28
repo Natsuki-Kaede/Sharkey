@@ -47,6 +47,10 @@ https://github.com/paricafe/misskey
 
 ### Other
 
+#### 彩蛋
+
+`config.stpvAprilFoolsEnabled`: 在 4 月 1 日给用户可关闭的愚人节彩蛋
+
 #### Behaviour Changes
 
 - 还原了 Misskey 的 Hashtag 搜索设置，即你能搜到任何你可见的打了某个 Hashtag 的帖子
@@ -64,6 +68,7 @@ https://github.com/paricafe/misskey
 
 - 更好的中文翻译
 - 允许的界面字体范围大大增加，默认字体从14px改为16px
+- 允许修改表情符号选择器内的表情的大小，减小选错可能
 - 处于 collapsed 状态的被回复/被折叠帖子现在采用 stpvInline MFM，提供完整但inline的MFM体验
 - "show less" 按钮现在会浮动在时间线下方
 
@@ -138,7 +143,7 @@ CREATE EXTENSION pgroonga;
 
 <div>
 
-<a href="https://joinsharkey.org/"><img src="https://cdn.shonk.social/files/b671c81c-58cf-4f13-bc96-af0b0c96c667.webp" align="right" height="520px"/></a>
+<a href="https://joinsharkey.org/"><img src="assets/sharkey.webp" align="right" height="520px"/></a>
 
 ## ✨ Features
 - **ActivityPub support**\

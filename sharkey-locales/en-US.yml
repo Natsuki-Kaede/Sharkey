@@ -56,10 +56,6 @@ mediaSilencedByBase: "This host's media is silenced implicitly because a base do
 driveSearchbarPlaceholder: "Search drive"
 fileNotSelected: "No file selected"
 background: "Background"
-inputNewDescription: "Enter new alt text"
-describeFile: "Add alt text"
-enterFileDescription: "Enter alt text"
-caption: "Alt text"
 antennaUsersDescription: "List one username per line. Use \"*@instance.com\" to specify all users of an instance"
 aboutMisskey: "About Sharkey"
 expandAllCws: "Show content for all replies"
@@ -138,6 +134,7 @@ oneko: "Cat friend :3"
 renotesList: "Boosts"
 lookupConfirm: "Are you sure that you want to look this up?"
 openTagPageConfirm: "Are you sure you want to open this hashtags page?"
+deleteThisAccountConfirm: "This will irreversibly delete this account. Proceed?"
 specifyHost: "Specify a host"
 goToMisskey: "To Sharkey"
 enableAchievements: "Enable Achievements"
@@ -161,6 +158,7 @@ severAllFollowRelations: "Break following relationships"
 severAllFollowRelationsConfirm: "Really break all follow relationships? This is irreversible! This will break {followingCount} following and {followersCount} follower relations on {instanceName}!"
 severAllFollowRelationsQueued: "Severing all follow relations with {host} queued."
 pendingFollowRequests: "Pending follow requests"
+undoFollowRequestConfirm: "Are you sure you want to cancel your follow request?"
 showQuotes: "Show quotes"
 showReplies: "Show replies"
 showNonPublicNotes: "Show non-public"
@@ -241,9 +239,23 @@ _role:
     canImportNotes: "Can import notes"
     canUpdateBioMedia: "Allow users to edit their avatar or banner"
     scheduleNoteMax: "Maximum number of scheduled notes"
+    canTrend: "Can appear in trending notes / users"
   _condition:
     isLocked: "Private account"
     isExplorable: "Account is discoverable"
+    isFromInstance: "Is from a specific instance"
+    isFromInstanceHost: "Hostname (case-insensitive)"
+    isFromInstanceSubdomains: "Match subdomains"
+    fromBubbleInstance: "User is from a bubble instance"
+    localFollowersLessThanOrEq: "Has X or fewer local followers"
+    localFollowersMoreThanOrEq: "Has X or more local followers"
+    localFollowingLessThanOrEq: "Follows X or fewer local accounts"
+    localFollowingMoreThanOrEq: "Follows X or more local accounts"
+    remoteFollowersLessThanOrEq: "Has X or fewer remote followers"
+    remoteFollowersMoreThanOrEq: "Has X or more remote followers"
+    remoteFollowingLessThanOrEq: "Follows X or fewer remote accounts"
+    remoteFollowingMoreThanOrEq: "Follows X or more remote accounts"
+  remoteDataWarning: "This condition may be incorrect for remote users."
 _emailUnavailable:
   banned: "This email address is banned"
 _signup:
@@ -278,6 +290,8 @@ _widgets:
 _poll:
   multiple: "Multiple choices"
 _profile:
+  updateAvatar: "Update avatar"
+  removeAvatar: "Remove avatar"
   updateBanner: "Update banner"
   removeBanner: "Remove banner"
   changeBackground: "Change background"
@@ -318,7 +332,7 @@ _moderationLogTypes:
   decline: "Declined"
   setMandatoryCW: "Set content warning for user"
   setRemoteInstanceNSFW: "Set remote instance as NSFW"
-  unsetRemoteInstanceNSFW: "Set remote instance as NSFW"
+  unsetRemoteInstanceNSFW: "Unset remote instance as NSFW"
   rejectRemoteInstanceReports: "Rejected reports from remote instance"
   acceptRemoteInstanceReports: "Accepted reports from remote instance"
   rejectQuotesUser: "Blocked/Stripped quote posts from user"
@@ -467,7 +481,7 @@ _permissions:
   "write:admin:approve-user": "Approve new users"
   "write:admin:decline-user": "Decline new users"
   "write:admin:nsfw-user": "Mark users as NSFW"
-  "write:admin:unnsfw-user": "Mark users an not NSFW"
+  "write:admin:unnsfw-user": "Mark users as not NSFW"
   "write:admin:cw-user": "Apply mandatory CW on users"
   "write:admin:silence-user": "Silence users"
   "write:admin:unsilence-user": "Un-silence users"
@@ -508,6 +522,70 @@ id: "ID"
 
 mandatoryCW: "Force content warning"
 mandatoryCWDescription: "Applies a content warning to all posts created by this user. If the post already has a CW, then this is appended to the end."
+fetchLinkedNote: "Fetch linked note"
+showTranslationButtonInNoteFooter: "Add \"Translate\" to note action menu"
+translationFailed: "Failed to translate note. Please try again later or contact an administrator for assistance."
 
 _processErrors:
   quoteUnavailable: "Unable to process quote. This post may be missing context."
+
+authorizedFetchSection: "Authorized Fetch"
+authorizedFetchLabel: "Allow unsigned ActivityPub requests:"
+authorizedFetchDescription: "This setting controls the behavior when a remote instance or user attempts to access your content without verifying their identity. If disabled, any remote user can access your profile and posts - even one who has been blocked or defederated."
+_authorizedFetchValue:
+  never: "Never"
+  always: "Always"
+  essential: "Only for essential metadata"
+  staff: "Use staff recommendation"
+_authorizedFetchValueDescription:
+  never: "Block all unsigned requests. Improves privacy and makes blocks more effective, but is not compatible with some very old or uncommon instance software."
+  always: "Allow all unsigned requests. Provides the greatest compatibility with other instances, but reduces privacy and weakens blocks."
+  essential: "Allow some limited unsigned requests. Provides a hybrid between \"Never\" and \"Always\" by exposing only the minimum profile metadata that is required for federation with older software."
+  staff: "Use the default value of \"{value}\" recommended by the instance staff."
+authorizedFetchLegacyWarning: "The configuration property 'checkActivityPubGetSignature' has been deprecated and replaced with the new Authorized Fetch setting. Please remove it from your configuration file."
+
+_followRequest:
+  recieved: "Received"
+  sent: "Sent"
+
+deleted: "Deleted"
+
+enableProxyAccount: "Enable the proxy account."
+enableProxyAccountDescription: "If disabled, then the proxy account will not be used. User lists will only include notes from local or followed users."
+
+_confirmPollEdit:
+  title: Are you sure you want to edit this poll
+  text: Editing this poll will cause it to lose all previous votes
+
+wordMuteTestLabel: "Test patterns"
+wordMuteTestDescription: "Enter some text here to test your word patterns. The matched words, if any, will be displayed below."
+wordMuteTestTest: "Test"
+wordMuteTestMatch: "Matched words: {words}"
+wordMuteTestNoResults: "No results yet, enter some text and click \"Test\" to check it."
+wordMuteTestNoMatch: "Text does not match any patterns."
+wordMuteWarning: "All word mutes are *case-sensitive* and match on any substring, including part of a longer word or name. You can use regular expressions for more precise control."
+
+bubbleTimeline: "Bubble timeline"
+bubbleTimelineDescription: "Choose which instances should be displayed in the bubble."
+bubbleTimelineMustBeEnabled: "Note: the bubble timeline is hidden by default, and must be enabled via roles."
+
+popularUsersGlobal: "Users popular on the global network"
+popularUsersLocal: "Users popular on {name}"
+
+silenced: "Silenced"
+totalFollowers: "Total followers"
+totalFollowing: "Total following"
+localFollowers: "Local followers"
+localFollowing: "Local following"
+remoteFollowers: "Remote followers"
+remoteFollowing: "Remote following"
+updateRemoteUser: "Refresh remote data"
+activityPub: "Activity Pub"
+ip: "IP"
+ipTip: "The date is when IP address was first used."
+rolePeriod: "Period"
+roleAssigned: "Assigned"
+roleAutomatic: "automatic"
+
+translationTimeoutLabel: "Translation timeout"
+translationTimeoutCaption: "Timeout in milliseconds for translation API requests."

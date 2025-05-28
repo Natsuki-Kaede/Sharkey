@@ -10,6 +10,7 @@ import { MiUser } from './User.js';
 import { MiChannel } from './Channel.js';
 import type { MiDriveFile } from './DriveFile.js';
 
+@Index('IDX_724b311e6f883751f261ebe378', ['userId', 'id'])
 @Entity('note')
 export class MiNote {
 	@PrimaryColumn(id())
@@ -73,7 +74,6 @@ export class MiNote {
 	})
 	public cw: string | null;
 
-	@Index()
 	@Column({
 		...id(),
 		comment: 'The ID of author.',
@@ -266,3 +266,7 @@ export type IMentionedRemoteUsers = {
 	username: string;
 	host: string;
 }[];
+
+export function hasText(note: MiNote): note is MiNote & { text: string } {
+	return note.text != null;
+}

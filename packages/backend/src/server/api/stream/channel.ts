@@ -83,10 +83,9 @@ export default abstract class Channel {
 	}
 
 	/**
-	 * Please make sure you did `assignMyReaction` before this function.
-	 * See Dakker's comment regarding the same object will leading to wrong value.
-	 * @param note The note to **CHANGE**
-	 * @see assignMyReaction
+	 * This function modifies {@link note}, please make sure it has been shallow cloned.
+	 * See Dakkar's comment of {@link assignMyReaction} for more
+	 * @param note The note to change
 	 */
 	protected async hideNote(note: Packed<'Note'>): Promise<void> {
 		if (note.renote) {
@@ -107,8 +106,8 @@ export default abstract class Channel {
 		this.noteEntityService = noteEntityService;
 	}
 
-	public send(payload: { type: string, body: JsonValue }): void
-	public send(type: string, payload: JsonValue): void
+	public send(payload: { type: string, body: JsonValue }): void;
+	public send(type: string, payload: JsonValue): void;
 	@bindThis
 	public send(typeOrPayload: { type: string, body: JsonValue } | string, payload?: JsonValue) {
 		const type = payload === undefined ? (typeOrPayload as { type: string, body: JsonValue }).type : (typeOrPayload as string);
@@ -167,4 +166,4 @@ export type MiChannelService<T extends boolean> = {
 	requireCredential: T;
 	kind: T extends true ? string : string | null | undefined;
 	create: (id: string, connection: Connection) => Channel;
-}
+};

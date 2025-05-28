@@ -17,7 +17,7 @@ import { LoggerService } from '@/core/LoggerService.js';
 import { bindThis } from '@/decorators.js';
 import type Logger from '@/logger.js';
 import { validateContentTypeSetAsActivityPub } from '@/core/activitypub/misc/validator.js';
-import type { IObject } from './type.js';
+import type { IObject, IObjectWithId } from './type.js';
 
 type Request = {
 	url: string;
@@ -155,6 +155,8 @@ export class ApRequestService {
 
 	@bindThis
 	public async signedPost(user: { id: MiUser['id'] }, url: string, object: unknown, digest?: string): Promise<void> {
+		this.apUtilityService.assertApUrl(url);
+
 		const body = typeof object === 'string' ? object : JSON.stringify(object);
 
 		const keypair = await this.userKeypairService.getUserKeypair(user.id);
@@ -185,7 +187,9 @@ export class ApRequestService {
 	 * @param followAlternate
 	 */
 	@bindThis
-	public async signedGet(url: string, user: { id: MiUser['id'] }, followAlternate?: boolean): Promise<IObject> {
+	public async signedGet(url: string, user: { id: MiUser['id'] }, followAlternate?: boolean): Promise<IObjectWithId> {
+		this.apUtilityService.assertApUrl(url);
+
 		const _followAlternate = followAlternate ?? true;
 		const keypair = await this.userKeypairService.getUserKeypair(user.id);
 
@@ -257,7 +261,7 @@ export class ApRequestService {
 						return await this.signedGet(href, user, false);
 					}
 				}
-			} catch (e) {
+			} catch {
 				// something went wrong parsing the HTML, ignore the whole thing
 			} finally {
 				happyDOM.close().catch(err => {});
@@ -273,6 +277,6 @@ export class ApRequestService {
 		// The caller (ApResolverService) will verify the ID against the original / entry URL, which ensures that all three match.
 		this.apUtilityService.assertIdMatchesUrlAuthority(activity, res.url);
 
-		return activity;
+		return activity as IObjectWithId;
 	}
 }

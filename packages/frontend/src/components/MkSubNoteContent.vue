@@ -5,23 +5,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div :class="[$style.root, { [$style.collapsed]: collapsed }]">
-	<div :class="{ [$style.clickToOpen]: defaultStore.state.clickToOpen }" @click.stop="defaultStore.state.clickToOpen ? noteclick(note.id) : undefined">
+	<div :class="{ [$style.clickToOpen]: prefer.s.clickToOpen }" @click.stop="prefer.s.clickToOpen ? noteclick(note.id) : undefined">
 		<span v-if="note.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 		<span v-if="note.deletedAt" style="opacity: 0.5">({{ i18n.ts.deletedNote }})</span>
 		<MkA v-if="note.replyId" :class="$style.reply" :to="`/notes/${note.replyId}`" @click.stop><i class="ph-arrow-bend-left-up ph-bold ph-lg"></i></MkA>
 		<Mfm v-if="note.text" :text="note.text" :isBlock="true" :author="note.user" :nyaize="'respect'" :isAnim="allowAnim" :emojiUrls="note.emojis"/>
 		<MkButton v-if="!allowAnim && animated && !hideFiles" :class="$style.playMFMButton" :small="true" @click="animatedMFM()" @click.stop><i class="ph-play ph-bold ph-lg "></i> {{ i18n.ts._animatedMFM.play }}</MkButton>
-		<MkButton v-else-if="!defaultStore.state.animatedMfm && allowAnim && animated && !hideFiles" :class="$style.playMFMButton" :small="true" @click="animatedMFM()" @click.stop><i class="ph-stop ph-bold ph-lg "></i> {{ i18n.ts._animatedMFM.stop }}</MkButton>
-		<div v-if="note.text && translating || note.text && translation" :class="$style.translation">
-			<MkLoading v-if="translating" mini/>
-			<div v-else>
-				<b>{{ i18n.tsx.translatedFrom({ x: translation.sourceLang }) }}: </b>
-				<Mfm :text="translation.text" :isBlock="true" :author="note.user" :nyaize="'respect'" :emojiUrls="note.emojis"/>
-			</div>
-		</div>
+		<MkButton v-else-if="!prefer.s.animatedMfm && allowAnim && animated && !hideFiles" :class="$style.playMFMButton" :small="true" @click="animatedMFM()" @click.stop><i class="ph-stop ph-bold ph-lg "></i> {{ i18n.ts._animatedMFM.stop }}</MkButton>
+		<SkNoteTranslation :note="note" :translation="translation" :translating="translating"></SkNoteTranslation>
 		<MkA v-if="note.renoteId" :class="$style.rp" :to="`/notes/${note.renoteId}`" @click.stop>RN: ...</MkA>
 	</div>
-	<details v-if="note.files && note.files.length > 0" :open="!defaultStore.state.collapseFiles && !hideFiles">
+	<details v-if="note.files && note.files.length > 0" :open="!prefer.s.collapseFiles && !hideFiles">
 		<summary>({{ i18n.tsx.withNFiles({ n: note.files.length }) }})</summary>
 		<MkMediaList :mediaList="note.files"/>
 	</details>
@@ -47,23 +41,29 @@ import MkMediaList from '@/components/MkMediaList.vue';
 import MkPoll from '@/components/MkPoll.vue';
 import MkButton from '@/components/MkButton.vue';
 import { i18n } from '@/i18n.js';
-import { defaultStore } from '@/store.js';
-import { useRouter } from '@/router/supplier.js';
 import * as os from '@/os.js';
-import { checkAnimationFromMfm } from '@/scripts/check-animated-mfm.js';
+import { checkAnimationFromMfm } from '@/utility/check-animated-mfm.js';
+import { useRouter } from '@/router';
+import { prefer } from '@/preferences.js';
+import SkNoteTranslation from '@/components/SkNoteTranslation.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	note: Misskey.entities.Note;
 	translating?: boolean;
-	translation?: any;
+	translation?: Misskey.entities.NotesTranslateResponse | false | null;
 	hideFiles?: boolean;
 	expandAllCws?: boolean;
-}>();
+}>(), {
+	translating: false,
+	translation: null,
+	hideFiles: false,
+	expandAllCws: false,
+});
 
 const router = useRouter();
 
 function noteclick(id: string) {
-	const selection = document.getSelection();
+	const selection = window.document.getSelection();
 	if (selection?.toString().length === 0) {
 		router.push(`/notes/${id}`);
 	}
@@ -71,9 +71,9 @@ function noteclick(id: string) {
 
 const parsed = computed(() => props.note.text ? mfm.parse(props.note.text) : null);
 const animated = computed(() => parsed.value ? checkAnimationFromMfm(parsed.value) : null);
-let allowAnim = ref(defaultStore.state.advancedMfm && defaultStore.state.animatedMfm ? true : false);
+let allowAnim = ref(prefer.s.advancedMfm && prefer.s.animatedMfm);
 
-const isLong = defaultStore.state.expandLongNote && !props.hideFiles ? false : shouldCollapsed(props.note, []);
+const isLong = prefer.s.expandLongNote && !props.hideFiles ? false : shouldCollapsed(props.note, []);
 
 function animatedMFM() {
 	if (allowAnim.value) {
@@ -110,7 +110,6 @@ watch(() => props.expandAllCws, (expandAllCws) => {
 			left: 0;
 			width: 100%;
 			height: 64px;
-			// background: linear-gradient(0deg, var(--MI_THEME-panel), color(from var(--MI_THEME-panel) srgb r g b / 0));
 
 			> .fadeLabel {
 				display: inline-block;
@@ -139,13 +138,6 @@ watch(() => props.expandAllCws, (expandAllCws) => {
 	margin-left: 4px;
 	font-style: oblique;
 	color: var(--MI_THEME-renote);
-}
-
-.translation {
-	border: solid 0.5px var(--MI_THEME-divider);
-	border-radius: var(--MI-radius);
-	padding: 12px;
-	margin-top: 8px;
 }
 
 .showLess {

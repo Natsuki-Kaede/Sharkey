@@ -109,8 +109,11 @@ globalThis.addEventListener('push', ev => {
         const data: PushNotificationDataMap[keyof PushNotificationDataMap] = ev.data?.json();
 
         switch (data.type) {
+					// case 'driveFileCreated':
             case 'notification':
             case 'unreadAntennaNote':
+							case 'newChatMessage':
+								// 1日以上経過している場合は無視
                 if (Date.now() - data.dateTime > 1000 * 60 * 60 * 24) break;
 
                 return createNotification(data);
@@ -192,6 +195,9 @@ globalThis.addEventListener('notificationclick', (ev: ServiceWorkerGlobalScopeEv
             case 'unreadAntennaNote':
                 client = await swos.openAntenna(data.body.antenna.id, loginId);
                 break;
+						case 'newChatMessage':
+								client = await swos.openChat(data.body, loginId);
+								break;
             default:
                 switch (action) {
                     case 'markAllAsRead':

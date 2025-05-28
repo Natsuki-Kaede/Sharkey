@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<div class="_gaps_m">
 		<div class="_gaps_s">
 			<MkSwitch v-model="enableRenderingOptimization">
-				enableRenderingOptimization
+				enableRenderingOptimization(Deprecated)
 			</MkSwitch>
 		</div>
 	</div>
@@ -21,56 +21,62 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<div class="_gaps_m">
 			<div class="_gaps_s">
-				<MkSelect v-model="defaultFont.fontFace">
-					<template #label>{{ i18n.ts._stpvPlus.defaultFont.label }}</template>
-					<template #caption>
-						{{ i18n.ts._stpvPlus.defaultFont.caption }}
-					</template>
-					<option
-						v-for="item in defaultFont.fontList"
-						:key="item.id"
-						:value="item.id"
-					>
-						{{ item.name }}
-					</option>
-				</MkSelect>
-				<template v-if="defaultFont.fontFace === 'custom'">
-					<template v-if="!canQueryLocalFonts()">
-						<MkInfo warn>
-							{{ i18n.ts.stpvWarnNoQueryLocalFonts }}
-						</MkInfo>
-						<MkInput v-model="customFontface">
-							<template #label>{{ i18n.ts._stpvPlus.customFont.label }}</template>
-							<template #caption>
-								{{ i18n.ts._stpvPlus.customFont.caption }}
-							</template>
-						</MkInput>
-					</template>
-					<MkLoading v-else-if="isAskingLocalFonts()"/>
-					<select v-else v-model="customFontface" :class="$style.customFontSelect">
+				<SearchMarker :keywords="['appear']">
+					<MkSelect v-model="defaultFont.fontFace">
+						<template #label>
+							<SearchLabel>
+								{{ i18n.ts._stpvPlus.defaultFont.label }}
+							</SearchLabel>
+						</template>
+						<template #caption>
+							{{ i18n.ts._stpvPlus.defaultFont.caption }}
+						</template>
 						<option
-							v-for="item in localFontsList"
-							:key="item.family"
-							:style="{ 'font-family': item.family }"
-							:value="item.family"
+							v-for="item in defaultFont.fontList"
+							:key="item.id"
+							:value="item.id"
 						>
-							{{ item.fullName }}
+							{{ item.name }}
 						</option>
-					</select>
-				</template>
-				<MkRadios v-if="defaultFont.availableTypes.length > 0" v-model="defaultFont.fontFaceType">
-					<template #label>{{ i18n.ts._stpvPlus.fontType.label }}</template>
-					<template #caption>
-						{{ i18n.ts._stpvPlus.fontType.caption }}
+					</MkSelect>
+					<template v-if="defaultFont.fontFace === 'custom'">
+						<template v-if="!canQueryLocalFonts()">
+							<MkInfo warn>
+								{{ i18n.ts.stpvWarnNoQueryLocalFonts }}
+							</MkInfo>
+							<MkInput v-model="customFontface">
+								<template #label>{{ i18n.ts._stpvPlus.customFont.label }}</template>
+								<template #caption>
+									{{ i18n.ts._stpvPlus.customFont.caption }}
+								</template>
+							</MkInput>
+						</template>
+						<MkLoading v-else-if="isAskingLocalFonts()"/>
+						<select v-else v-model="customFontface" :class="$style.customFontSelect">
+							<option
+								v-for="item in localFontsList"
+								:key="item.family"
+								:style="{ 'font-family': item.family }"
+								:value="item.family"
+							>
+								{{ item.fullName }}
+							</option>
+						</select>
 					</template>
-					<option
-						v-for="item in defaultFont.availableTypes"
-						:key="item.id"
-						:value="item.id"
-					>
-						{{ item.name }}
-					</option>
-				</MkRadios>
+					<MkRadios v-if="defaultFont.availableTypes.length > 0" v-model="defaultFont.fontFaceType">
+						<template #label>{{ i18n.ts._stpvPlus.fontType.label }}</template>
+						<template #caption>
+							{{ i18n.ts._stpvPlus.fontType.caption }}
+						</template>
+						<option
+							v-for="item in defaultFont.availableTypes"
+							:key="item.id"
+							:value="item.id"
+						>
+							{{ item.name }}
+						</option>
+					</MkRadios>
+				</SearchMarker>
 			</div>
 			<div class="_gaps_s">
 				<MkSwitch v-model="stpvDisableAllReactions">
@@ -83,6 +89,23 @@ SPDX-License-Identifier: AGPL-3.0-only
 					{{ i18n.ts._stpvPlus.hideReplyAcct.label }}
 					<template #caption>{{ i18n.ts._stpvPlus.hideReplyAcct.caption }}</template>
 				</MkSwitch>
+			</div>
+		</div>
+	</FormSection>
+
+	<FormSection>
+		<template #label>{{ i18n.ts.emojiPicker }}</template>
+		<div class="_gaps_m">
+			<div class="_gaps_s">
+				<MkRange v-model="stpvEmojiPickerItemSize" :min="1" :max="3" :step="0.25">
+					<template #label>{{ i18n.ts.stpvEmojiPickerItemSize }}</template>
+					<template #caption>
+						<MkFolder :spacerMin="0" :spacerMax="0">
+							<template #label>{{ i18n.ts.preview }}</template>
+							<MkEmojiPicker :class="$style.emojiPickerPreview"></MkEmojiPicker>
+						</MkFolder>
+					</template>
+				</MkRange>
 			</div>
 		</div>
 	</FormSection>
@@ -107,6 +130,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkSwitch v-model="stpvAdvancedPostForm" disabled>
 					{{ i18n.ts._stpvPlus.advancedPostForm.label }}
 					<template #caption>{{ i18n.ts._stpvPlus.advancedPostForm.caption }}</template>
+				</MkSwitch>
+			</div>
+			<div v-if="isAprilFoolsDay" class="_gaps_s">
+				<MkSwitch v-model="stpvAprilFools">
+					{{ i18n.ts._stpvPlus.aprilFools.label }}
+					<template #caption>{{ i18n.ts._stpvPlus.aprilFools.caption }}</template>
 				</MkSwitch>
 			</div>
 			<div class="_gaps_s">
@@ -168,73 +197,77 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import MkSwitch from '@/components/MkSwitch.vue';
-import FormLink from '@/components/form/link.vue';
 import MkFolder from '@/components/MkFolder.vue';
-import FormInfo from '@/components/MkInfo.vue';
-import MkKeyValue from '@/components/MkKeyValue.vue';
 import MkButton from '@/components/MkButton.vue';
 import MkRadios from '@/components/MkRadios.vue';
 import MkSelect from '@/components/MkSelect.vue';
-import * as os from '@/os.js';
-import { misskeyApi } from '@/scripts/misskey-api.js';
-import { defaultStore } from '@/store.js';
-import { signout, signinRequired } from '@/account.js';
 import { i18n } from '@/i18n.js';
-import { definePageMetadata } from '@/scripts/page-metadata.js';
-import { unisonReload } from '@/scripts/unison-reload.js';
 import FormSection from '@/components/form/section.vue';
 import MkInfo from '@/components/MkInfo.vue';
-import { getDefaultFontSettings } from '@/scripts/font-settings';
+import { getDefaultFontSettings } from '@/utility/font-settings';
 import MkTextarea from '@/components/MkTextarea.vue';
 import { TimelineSwipeKeys } from '@/stpv-store-ext';
 import { isBasicTimeline } from '@/timelines';
 import { miLocalStorage } from '@/local-storage';
 import MkInput from '@/components/MkInput.vue';
-
-const $i = signinRequired();
-const meId = $i.id;
+import MkEmojiPicker from '@/components/MkEmojiPicker.vue';
+import MkRange from '@/components/MkRange.vue';
+import { instance } from '@/instance';
+import { store } from '@/store';
+import { definePage } from '@/page';
 
 const defaultFont = getDefaultFontSettings();
 console.log(defaultFont);
 
-const enableRenderingOptimization = computed(defaultStore.makeGetterSetter('enableRenderingOptimization'));
+const enableRenderingOptimization = false;
 
-const collapsedInReplyTo = defaultStore.reactiveState.collapseNotesRepliedTo;
+const collapsedInReplyTo = store.r.collapseNotesRepliedTo;
 
-const autoSpacingBehaviour = computed(defaultStore.makeGetterSetter('chineseAutospacing'));
-const stpvDisableAllReactions = computed(defaultStore.makeGetterSetter('stpvDisableAllReactions'));
-const stpvHideReplyAcct = computed(defaultStore.makeGetterSetter('stpvHideReplyAcct'));
-const stpvAdvancedPostForm = computed(defaultStore.makeGetterSetter('stpvAdvancedPostForm'));
-const stpvCombineRepliesQuotes = computed(defaultStore.makeGetterSetter('stpvCombineRepliesQuotes'));
+const today = ref(new Date());
+const isAprilFoolsDay = computed(() =>
+	instance.stpvAprilFoolsEnabled &&
+	// .getMonth() is a zero-based value
+	today.value.getMonth() === 3 &&
+	// ...but .getDate() is a one-based value
+	today.value.getDate() === 1,
+);
+
+const autoSpacingBehaviour = computed(store.makeGetterSetter('chineseAutospacing'));
+const stpvDisableAllReactions = computed(store.makeGetterSetter('stpvDisableAllReactions'));
+const stpvHideReplyAcct = computed(store.makeGetterSetter('stpvHideReplyAcct'));
+const stpvAdvancedPostForm = computed(store.makeGetterSetter('stpvAdvancedPostForm'));
+const stpvCombineRepliesQuotes = computed(store.makeGetterSetter('stpvCombineRepliesQuotes'));
+const stpvEmojiPickerItemSize = computed(store.makeGetterSetter('stpvEmojiPickerItemSize'));
+const stpvAprilFools = computed(store.makeGetterSetter('stpvAprilFools'));
 
 const stpvMutedUsersList = computed({
-	get: () => defaultStore.reactiveState.stpvClientMutedUsers.value.filter(x => x).join('\n'),
+	get: () => store.r.stpvClientMutedUsers.value.filter(x => x).join('\n'),
 	set: (v) => {
-		defaultStore.set('stpvClientMutedUsers', v.split('\n').filter(x => x.trim()).slice(0, 100));
+		store.set('stpvClientMutedUsers', v.split('\n').filter(x => x.trim()).slice(0, 100));
 	},
 });
 const stpvMutedNotesList = computed({
-	get: () => defaultStore.reactiveState.stpvClientMutedNotes.value.filter(x => x).join('\n'),
+	get: () => store.r.stpvClientMutedNotes.value.filter(x => x).join('\n'),
 	set: (v) => {
-		defaultStore.set('stpvClientMutedNotes', v.split('\n').filter(x => x.trim()).slice(0, 100));
+		store.set('stpvClientMutedNotes', v.split('\n').filter(x => x.trim()).slice(0, 100));
 	},
 });
 const stpvMutedDomainsList = computed({
-	get: () => defaultStore.reactiveState.stpvClientMutedDomains.value.filter(x => x).join('\n'),
+	get: () => store.r.stpvClientMutedDomains.value.filter(x => x).join('\n'),
 	set: (v) => {
-		defaultStore.set('stpvClientMutedNotes', v.split('\n').filter(x => x.trim()).slice(0, 100));
+		store.set('stpvClientMutedNotes', v.split('\n').filter(x => x.trim()).slice(0, 100));
 	},
 });
 const timelineSwipeDisabled = ref(Object.fromEntries(TimelineSwipeKeys.map(name => [
 	name,
 	computed({
-		get: () => defaultStore.reactiveState.stpvDisabledTimelineSwipes.value.includes(name),
+		get: () => store.r.stpvDisabledTimelineSwipes.value.includes(name),
 		set: (v) => {
-			const val = defaultStore.state.stpvDisabledTimelineSwipes;
+			const val = store.s.stpvDisabledTimelineSwipes;
 			if (v) {
-				defaultStore.set('stpvDisabledTimelineSwipes', val.concat([name]));
+				store.set('stpvDisabledTimelineSwipes', val.concat([name]));
 			} else {
-				defaultStore.set('stpvDisabledTimelineSwipes', val.filter(n => n !== name));
+				store.set('stpvDisabledTimelineSwipes', val.filter(n => n !== name));
 			}
 		},
 	}),
@@ -289,7 +322,7 @@ async function getLocalFontList() {
 
 // const headerTabs = computed(() => []);
 
-definePageMetadata(() => ({
+definePage(() => ({
 	title: i18n.ts._stpvPlus.title,
 	icon: 'ti ti-dots',
 }));
@@ -349,5 +382,9 @@ definePageMetadata(() => ({
 			border-color: var(--MI_THEME-inputBorderHover) !important;
 		}
 	}
+}
+
+.emojiPickerPreview{
+	width: 100% !important;
 }
 </style>
