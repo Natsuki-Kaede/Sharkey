@@ -23,6 +23,7 @@ import MkSparkle from '@/components/MkSparkle.vue';
 import MkA from '@/components/global/MkA.vue';
 import { prefer } from '@/preferences.js';
 import { clamp } from '@@/js/math.js';
+import { customEmojisMap } from '@/custom-emojis.js';
 
 function safeParseFloat(str: unknown): number | null {
 	if (typeof str !== 'string' || str === '') return null;
@@ -506,7 +507,7 @@ export default function MkMfm(props: MfmProps, { emit }: { emit: SetupContext<Mf
 			}
 
 			case 'emojiCode': {
-				if (props.author?.host == null) {
+				if (props.author?.host == null || customEmojisMap.has(token.props.name)) {
 					return [h(MkCustomEmoji, {
 						key: Math.random(),
 						name: token.props.name,
