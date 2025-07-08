@@ -320,7 +320,7 @@ export const PREF_DEF = {
 		default: 'app' as 'app' | 'appWithShift' | 'native',
 	},
 	skipNoteRender: {
-		default: true,
+		default: false,
 	},
 	showSoftWordMutedWord: {
 		default: false,
