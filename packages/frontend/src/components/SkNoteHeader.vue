@@ -122,11 +122,6 @@ const mock = inject(DI.mock, false);
 	align-items: center;
 }
 
-.skipRender {
-	content-visibility: auto;
-	contain-intrinsic-size: auto;
-}
-
 .classicRoot {
 	display: flex;
 	align-items: baseline;

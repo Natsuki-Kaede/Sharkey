@@ -70,11 +70,6 @@ const mock = inject(DI.mock, false);
 	cursor: auto; /* not clickToOpen-able */
 }
 
-.skipRender {
-	content-visibility: auto;
-	contain-intrinsic-size: auto;
-}
-
 .name {
 	flex-shrink: 1;
 	display: block;
